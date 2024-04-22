@@ -41,3 +41,58 @@ voter := person{
 voter.canVote() // prints "Hi Saqib, Welcome!"
 ```
 
+## Basics of GoLang
+- [Basic commands](#basic-commands)
+- [Variables](#variables)
+- [Loops](#loops)
+- [Functions](#functions)
+- [If statements](#if-statements)
+- [Switch](#switch)
+- [Anonymous functions](#anonymous-functions)
+- [Variadic functions](#variadic-functions)
+- [Error handling](#errors)
+
+## Data Structures and Types
+- [Structs](#structs)
+- [Slices](#slices)
+- [Maps](#maps)
+- [Runes](#runes)
+- [Interfaces](#interfaces)
+- [Generics](#generics)
+
+## Concurrency and Parallelism
+- [Goroutines](#go-routines)
+- [Channels](#channels)
+- [Wait groups](#wait-groups)
+- [Context](#context)
+
+## Advanced Topics
+- [Reflection](#reflections)
+- [Type assertion & conversion](#type-assertion--conversion)
+- [Dependency Injection](#dependency-injection)
+
+## File Operations
+- [File handling](#file-handling)
+- [JSON Encoding & decoding](#json-encoding--decoding)
+
+## Web Development
+- [HTTP functions](#http-functions)
+- [URL functions](#url-functions)
+- [Path functions](#path-functions)
+- [Templates](#templates)
+- [Database operations](#database-operations)
+
+## Utility Functions
+- [Math functions](#math-functions)
+- [String functions](#string-functions)
+- [Print functions](#print-functions)
+- [Test functions](#test-functions)
+- [Time functions](#time-functions)
+- [Slice functions](#slice-functions)
+- [Sort functions](#sort-functions)
+- [Operating system functions](#operating-system-functions)
+- [Random numbers](#random-numbers)
+
+### Errors
+x
+
