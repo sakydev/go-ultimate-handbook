@@ -92,7 +92,6 @@ voter.canVote() // prints "Hi Saqib, Welcome!"
 - [Sort functions](#sort-functions)
 - [Operating system functions](#operating-system-functions)
 - [Random numbers](#random-numbers)
-
-### Errors
-x
+- [UUID functions](#uuid-functions)
+- [Null functions](#null-functions)
 
