@@ -64,6 +64,7 @@ voter.canVote() // prints "Hi Saqib, Welcome!"
 - [Goroutines](#go-routines)
 - [Channels](#channels)
 - [Wait groups](#wait-groups)
+- [Mutex](#mutex)
 - [Context](#context)
 
 ## Advanced Topics
