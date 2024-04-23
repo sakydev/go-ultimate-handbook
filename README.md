@@ -229,6 +229,103 @@ waitGroup.Wait() // waits for all routines to call .Done
 ## Utility Functions
 ### Math functions
 ### String functions
+Some of frequently used string methods are listed below. [Full list](https://pkg.go.dev/strings)
+```go
+// Clone returns a copy of the given string.
+strings.Clone("Hello, World!") // Output: Hello, World!
+
+// Compare returns an integer comparing two strings lexicographically.
+// It returns 0 if a == b, -1 if a < b, and 1 if a > b.
+strings.Compare("apple", "banana") // Output: -1
+
+// Contains reports whether substr is within s.
+strings.Contains("gopher", "ph") // Output: true
+
+// ContainsAny reports whether any Unicode code points in chars are within s.
+strings.ContainsAny("hello", "aeiou") // Output: true
+
+// ContainsRune reports whether the Unicode code point r is within s.
+strings.ContainsRune("hello", 'o') // Output: true
+
+// Count counts the number of non-overlapping instances of substr in s.
+strings.Count("cheese", "e") // Output: 3
+
+// Cut slices s into all substrings separated by sep and returns a slice of the substrings between those separators.
+strings.Cut("a-b-c-d-e", "-") // Output: ["a" "b" "c" "d" "e"]
+
+// CutPrefix returns s without the provided leading prefix string.
+strings.CutPrefix("Goodbye, world!", "Goodbye, ") // Output: world!
+
+// CutSuffix returns s without the provided trailing suffix string.
+strings.CutSuffix("Goodbye, world!", ", world!") // Output: Goodbye
+
+// HasPrefix tests whether the string s begins with prefix.
+strings.HasPrefix("Gopher", "Go") // Output: true
+
+// HasSuffix tests whether the string s ends with suffix.
+strings.HasSuffix("Amigo", "go") // Output: true
+
+// Index returns the index of the first instance of substr in s, or -1 if substr is not present in s.
+strings.Index("chicken", "ken") // Output: 4
+
+// IndexAny returns the index of the first instance of any Unicode code point from chars in s, or -1 if no Unicode code point from chars is present in s.
+strings.IndexAny("chicken", "aeiou") // Output: 2
+
+// Join concatenates the elements of a to create a single string. The separator string sep is placed between elements in the resulting string.
+strings.Join([]string{"hello", "world"}, ", ") // Output: hello, world
+
+// LastIndex returns the index of the last instance of substr in s, or -1 if substr is not present in s.
+strings.LastIndex("go gopher", "go") // Output: 3
+
+// LastIndexAny returns the index of the last instance of any Unicode code point from chars in s, or -1 if no Unicode code point from chars is present in s.
+strings.LastIndexAny("go gopher", "ao") // Output: 4
+
+// Map returns a copy of the string s with all its characters modified according to the mapping function.
+strings.Map(func(r rune) rune { return r + 1 }, "hello") // Output: "ifmmp"
+
+// Repeat returns a new string consisting of count copies of the string s.
+strings.Repeat("na", 3) // Output: "nanana"
+
+// Replace returns a copy of the string s with the first n non-overlapping instances of old replaced by new.
+strings.Replace("oink oink oink", "k", "ky", 2) // Output: "oinky oinky oink"
+
+// ReplaceAll returns a copy of the string s with all non-overlapping instances of old replaced by new.
+strings.ReplaceAll("oink oink oink", "k", "ky") // Output: "oinky oinky oinky"
+
+// Split slices s into all substrings separated by sep and returns a slice of the substrings between those separators.
+strings.Split("a,b,c", ",") // Output: ["a" "b" "c"]
+
+// SplitAfter slices s into all substrings after each instance of sep and returns a slice of those substrings.
+strings.SplitAfter("a,b,c", ",") // Output: ["a," "b," "c"]
+
+// SplitAfterN slices s into substrings after each instance of sep and returns a slice of those substrings.
+strings.SplitAfterN("a,b,c", ",", 2) // Output: ["a," "b,c"]
+
+// SplitN slices s into substrings separated by sep and returns a slice of the substrings between those separators.
+strings.SplitN("a,b,c", ",", 2) // Output: ["a" "b,c"]
+
+// Title returns a copy of the string s with all Unicode letters that begin words mapped to their title case.
+strings.Title("her royal highness") // Output: "Her Royal Highness"
+
+// ToLower returns a copy of the string s with all Unicode letters mapped to their lower case.
+strings.ToLower("Gopher") // Output: "gopher"
+
+// ToUpper returns a copy of the string s with all Unicode letters mapped to their upper case.
+strings.ToUpper("Gopher") // Output: "GOPHER"
+
+// Trim returns a slice of the string s with all leading and trailing Unicode code points contained in cutset removed.
+strings.Trim("¡¡¡Hello, Gophers!!!", "!¡") // Output: "Hello, Gophers"
+
+// TrimLeft returns a slice of the string s with all leading Unicode code points contained in cutset removed.
+strings.TrimLeft("¡¡¡Hello, Gophers!!!", "!¡") // Output: "Hello, Gophers!!!"
+
+// TrimRight returns a slice of the string s with all trailing Unicode code points contained in cutset removed.
+strings.TrimRight("¡¡¡Hello, Gophers!!!", "!¡") // Output: "¡¡¡Hello, Gophers"
+
+// TrimSpace returns a slice of the string s with all leading and trailing white space removed, as defined by Unicode.
+strings.TrimSpace(" \t\n Hello, Gophers \n\t\r\n") // Output: "Hello, Gophers"
+
+```
 ### Print functions
 ### Test functions
 ### Time functions
