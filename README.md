@@ -10,9 +10,9 @@ A super detailed handbook for Golang
 - [Switch](#switch)
 - [Anonymous functions](#anonymous-functions)
 - [Variadic functions](#variadic-functions)
-- [Error handling](#errors)
+- [Error handling](#error-handling)
 - [Defer](#defer)
-- [Recievers](#recievers)
+- [Receivers](#receivers)
 
 ## Data Structures and Types
 - [Structs](#structs)
@@ -68,6 +68,7 @@ A super detailed handbook for Golang
 ### Anonymous functions
 ### Variadic functions
 ### Error handling
+
 ### Defer
 Execution of a function can be delayed with `defer` keyword. This is useful for closing database/files and performing cleanups etc. Methods are executed on first in / last out bases. The method defered earliest will be executed last inside a method context.
 
@@ -83,7 +84,7 @@ func main() {
 }
 ```
 
-### Reciever methods
+### Receivers
 You can create callable methods on structs. There you may access struct values or simply perform other actions.
 
 ```go
