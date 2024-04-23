@@ -188,6 +188,19 @@ go sayHello()
 Main go program won't wait for these to finish. If you need to analyse results of these routines, you'll need either channels or waitgroups.
 
 ### Channels
+Channels in Go are communication primitives used for synchronization and communication between goroutines. They provide a way for goroutines to communicate with each other and synchronize their execution. Channels facilitate safe data transfer between goroutines, ensuring that data races and other synchronization issues are avoided.
+
+```go
+scoresChannel := make(chan int)
+
+go func() {
+  scoresChannel <- 42
+}()
+
+scores := <-scoresChannel // this will cause program to wait until channel recieves value
+fmt.Println(scores)
+```
+
 ### Wait groups
 
 ```go
