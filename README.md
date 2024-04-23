@@ -62,6 +62,26 @@ A super detailed handbook for Golang
 ### Basic commands
 ### Variables
 ### Loops
+```go
+// for loop
+for i := 0; i < 10; i++ {
+  ...
+}
+
+// while loop
+for {
+  if something {
+    break
+  }
+}
+
+// for each loop
+items := []int{1, 2, 3, 4}
+for index, item := range items {
+  ...
+}
+```
+
 ### Functions
 ### If statements
 ### Switch
