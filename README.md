@@ -141,20 +141,52 @@ func multiply[T customType](number T, multiplier T) T {
 We can specify `struct` fields as generics too. Again, we can specify inline types or use interface
 ```go
 type Balance interface {
-	int | int64 | float64
+  int | int64 | float64
 }
 
 type Person[T Balance] struct {
-	Name    string
-	Balance T
+  Name  string
+  Balance T
 }
 ```
 
 
 ## Concurrency and Parallelism
 ### Goroutines
+A goroutine is a lightweight thread managed by the Go runtime. They are useful when you want to run background processes and collect results, or simply move on without while process runs in background.
+
+```go
+// using anonymous function
+go func() {
+  fmt.Println("Hello")
+}()
+
+// or call an actual function
+go sayHello()
+```
+
+Main go program won't wait for these to finish. If you need to analyse results of these routines, you'll need either channels or waitgroups.
+
 ### Channels
 ### Wait groups
+
+```go
+import "sync"
+
+var waitGroup sync.WaitGroup
+
+for i := 0; i < 5; i++ {
+  waitGroup.Add(1) // tell waitGroup to include one more in waitlist
+
+  go func(n int) {
+    fmt.Printf("Hello %d", n)
+
+    waitGroup.Done()
+  }(i)
+}
+
+waitGroup.Wait() // waits for all routines to call .Done
+```
 ### Mutex
 ### Context
 
