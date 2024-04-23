@@ -118,6 +118,7 @@ voter.canVote() // prints "Hi Saqib, Welcome!"
 ### Generics
 There might be situations where you can't fully predict types of data. These can be function parameters or return types. In such cases, you can use generics to specify one or multiple types to anticipate. These were introduced in `go 1.18`
 
+**Generic methods**  
 A simple example where we do multiplication. Both numbers can either be `int` or `float64`
 ```go
 func multiply[T int | float64](number T, multiplier T) T {
@@ -133,6 +134,19 @@ type customType interface {
 
 func multiply[T customType](number T, multiplier T) T {
   return number + multiplier
+}
+```
+
+**Generic structs**  
+We can specify `struct` fields as generics too. Again, we can specify inline types or use interface
+```go
+type Balance interface {
+	int | int64 | float64
+}
+
+type Person[T Balance] struct {
+	Name    string
+	Balance T
 }
 ```
 
