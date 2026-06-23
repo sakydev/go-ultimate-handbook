@@ -13,7 +13,7 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 **Language**
 | Topic | Status |
 |-------|--------|
-| Basics | 🚧 In progress |
+| Basics | ✅ Ready |
 | Data Structures | 🚧 In progress |
 | Concurrency | 🚧 In progress |
 | Testing | 🚧 In progress |
