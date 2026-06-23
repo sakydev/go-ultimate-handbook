@@ -362,6 +362,22 @@
 
     .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
 
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
     .ref-table {
@@ -588,6 +604,11 @@ val, _ := <span class="fn">strconv</span>.<span class="fn">Atoi</span>(<span cla
         </div>
       </div>
 
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>Use <code>iota</code> when you need a set of related constants that don't have meaningful numeric values themselves — like states, directions, or flags. It removes hardcoded numbers, so inserting or reordering values never causes silent bugs from miscounted integers.</div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <span class="card-title">iota patterns — bitmasks &amp; expressions</span>
@@ -627,6 +648,21 @@ p&Read != <span class="num">0</span>                  <span class="cmt">// check
         <div class="section-icon icon-green">🔗</div>
         <h2>Pointers</h2>
         <span class="section-tag">&amp; · * · nil</span>
+      </div>
+
+      <div class="diagram">
+<pre>  Regular variable              Pointer variable
+
+  x := 42                       p := &amp;x
+
+  ┌───────────┐                 ┌───────────┐         ┌───────────┐
+  │     42    │                 │  0xc000   │────────▶│     42    │
+  └───────────┘                 └───────────┘         └───────────┘
+  addr: 0xc000                  addr: 0xc008          addr: 0xc000
+       x                             p                     *p
+
+  x holds the value directly.   p holds the address of x.
+  Changing x affects only x.    *p reads or writes x through the address.</pre>
       </div>
 
       <div class="card">
