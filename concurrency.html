@@ -5,35 +5,429 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Go Concurrency — Ultimate Handbook</title>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;--accent:#0a8060;--accent2:#0969da;--accent3:#9a6700;--accent4:#cf222e;--text:#1f2328;--muted:#656d76;--tag-bg:#dafbe1;--tag-text:#1a7f37;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--font-sans:'Inter','Segoe UI',system-ui,sans-serif;--radius:12px}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;padding:0 0 80px}
-    a{color:var(--accent2);text-decoration:none}
-    .hero{background:linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%);border-bottom:1px solid var(--border);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%);pointer-events:none}
-    .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--tag-bg);color:var(--tag-text);border:1px solid #82cfaa;border-radius:100px;padding:4px 14px;margin-bottom:20px}
-    .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
-    .hero h1 span{color:var(--accent2)}
-    .hero p{font-size:1.1rem;color:var(--muted);max-width:540px;margin:0 auto}
-    .layout{display:grid;grid-template-columns:200px 1fr 220px;max-width:1300px;margin:0 auto}
-    .pkg-nav{position:sticky;top:24px;align-self:start;padding:28px 0 32px 24px;height:fit-content}
-    .home-link{display:block;font-weight:700;font-size:.88rem;color:var(--text);padding:4px 10px 18px;letter-spacing:-.01em;text-decoration:none}
-    .home-link:hover{color:var(--accent2)}
-    .nav-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px;margin-top:8px}
-    .pkg-list{list-style:none;display:flex;flex-direction:column;gap:2px}
-    .pkg-list a{display:flex;align-items:center;gap:8px;font-size:.84rem;font-family:var(--font-mono);color:var(--muted);padding:6px 10px;border-radius:7px;border:1px solid transparent;transition:all .15s;text-decoration:none}
-    .pkg-list a:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
-    .pkg-list a.active{color:var(--accent2);background:rgba(9,105,218,.07);border-color:rgba(9,105,218,.2);font-weight:600}
-    .pkg-list a .pkg-icon{font-size:.85rem;width:18px;text-align:center}
-    .content{padding:40px 32px;min-width:0;border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh}
-    .toc-nav{position:sticky;top:24px;align-self:start;padding:32px 24px 32px 0;height:fit-content}
-    .cs-icon{font-size:2.8rem;margin-bottom:16px}
-    .cs-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .cs-sub{color:var(--muted);font-size:.92rem;margin-bottom:28px}
-    .cs-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
-    .cs-topics span{font-family:var(--font-mono);font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--muted)}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.pkg-nav,.toc-nav{display:none}.content{padding:24px 16px;border:none}}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .toc-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 24px 32px 0;
+      height: fit-content;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green  { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold   { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red    { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple { background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .kw  { color: #cf222e; }
+    .fn  { color: #8250df; }
+    .str { color: #0a3069; }
+    .cmt { color: #6e7781; font-style: italic; }
+    .num { color: #0550ae; }
+    .pkg { color: #0969da; }
+    .typ { color: #953800; }
+    .out { color: #1a7f37; }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td { padding: 9px 14px; vertical-align: top; }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent3);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -41,10 +435,21 @@
 <div class="hero">
   <div class="hero-badge">Language Deep Dive</div>
   <h1>Go <span>Concurrency</span></h1>
-  <p>Goroutines, channels, select, WaitGroup, Mutex, sync.Once, atomic operations, and context.</p>
+  <p>Goroutines, channels, and the sync primitives that keep concurrent code correct.</p>
+  <div class="hero-pills">
+    <span>Goroutines</span>
+    <span>Channels</span>
+    <span>Select</span>
+    <span>WaitGroup</span>
+    <span>Mutex</span>
+    <span>sync.Once</span>
+    <span>sync/atomic</span>
+    <span>Context</span>
+  </div>
 </div>
 
 <div class="layout">
+
   <nav class="pkg-nav">
     <a href="index.html" class="home-link">Go Handbook</a>
     <div class="nav-group">Language</div>
@@ -76,15 +481,647 @@
   </nav>
 
   <main class="content">
-    <div class="cs-icon">🔀</div>
-    <h2 class="cs-title">Coming Soon</h2>
-    <p class="cs-sub">This page is being written. Topics that will be covered:</p>
-    <div class="cs-topics">
-      <span>Goroutines</span><span>Channels</span><span>Buffered channels</span><span>Select</span><span>WaitGroup</span><span>Mutex</span><span>sync.Once</span><span>sync/atomic</span><span>Context</span>
-    </div>
+
+    <!-- ── 1. GOROUTINES ─────────────────────────────────────────── -->
+    <section class="section" id="goroutines">
+      <div class="section-header">
+        <div class="section-icon icon-green">🚀</div>
+        <h2>Goroutines</h2>
+        <span class="section-tag">go · lightweight · leak</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>A goroutine is a lightweight thread managed by the Go runtime — not an OS thread. Starting one costs ~2 KB of stack (grows as needed). You can run hundreds of thousands concurrently. The runtime multiplexes them onto OS threads automatically.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Starting goroutines</span>
+          <span class="card-badge badge-green">go</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// go keyword starts a goroutine — returns immediately</span>
+<span class="kw">go</span> <span class="fn">doWork</span>()
+
+<span class="cmt">// With an anonymous function</span>
+<span class="kw">go</span> <span class="kw">func</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"running concurrently"</span>)
+}()
+
+<span class="cmt">// Pass args at launch — value captured now, not when goroutine runs</span>
+msg := <span class="str">"hello"</span>
+<span class="kw">go</span> <span class="kw">func</span>(s <span class="typ">string</span>) {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(s)
+}(msg)
+
+<span class="cmt">// main returning kills all goroutines immediately</span>
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="kw">go</span> <span class="fn">doWork</span>()
+    <span class="cmt">// program may exit before doWork runs — use WaitGroup or channel</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>Goroutine leak:</strong> never start a goroutine you can't stop. If it's blocked on a channel receive with no sender, or loops forever with no exit path, it stays in memory for the life of the process. Always provide a way out — a done channel, a context cancellation, or a timeout.</div>
+      </div>
+    </section>
+
+    <!-- ── 2. CHANNELS ───────────────────────────────────────────── -->
+    <section class="section" id="channels">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📡</div>
+        <h2>Channels</h2>
+        <span class="section-tag">make · send · receive · close · range</span>
+      </div>
+
+      <div class="diagram">
+<pre>  Unbuffered channel — sender and receiver must meet simultaneously
+
+  goroutine A                  ch               goroutine B
+  ┌────────────┐           ┌────────┐           ┌────────────┐
+  │  ch &lt;- v  │──────────▶│        │──────────▶│  v := &lt;-ch │
+  │  (blocks) │           └────────┘           │ (unblocks  │
+  └────────────┘                               │   sender)  │
+                                               └────────────┘
+  Built-in synchronisation — the send only completes when received.</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Basic send, receive &amp; close</span>
+          <span class="card-badge badge-blue">chan</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// make(chan T) — unbuffered channel</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+
+<span class="kw">go</span> <span class="kw">func</span>() { ch <- <span class="num">42</span> }()  <span class="cmt">// send — blocks until received</span>
+v := <-ch                   <span class="cmt">// receive — blocks until sent</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v)              <span class="cmt">// 42</span>
+
+<span class="cmt">// Comma-ok — detect if channel is closed</span>
+v, ok := <-ch  <span class="cmt">// ok=false when channel is closed and drained</span>
+
+<span class="cmt">// close signals no more values will be sent</span>
+jobs := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">string</span>, <span class="num">3</span>)
+jobs <- <span class="str">"a"</span>; jobs <- <span class="str">"b"</span>; jobs <- <span class="str">"c"</span>
+<span class="fn">close</span>(jobs)
+
+<span class="cmt">// range drains channel then exits when closed</span>
+<span class="kw">for</span> j := <span class="kw">range</span> jobs {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(j) <span class="cmt">// a, b, c</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Directional channels — restrict send or receive</span>
+          <span class="card-badge badge-blue">Direction</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// chan&lt;- T  send-only      &lt;-chan T  receive-only</span>
+<span class="cmt">// Use in signatures to document intent and let the compiler enforce it</span>
+
+<span class="kw">func</span> <span class="fn">producer</span>(out <span class="kw">chan</span><- <span class="typ">int</span>) {
+    <span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">5</span>; i++ {
+        out <- i
+    }
+    <span class="fn">close</span>(out)
+}
+
+<span class="kw">func</span> <span class="fn">consumer</span>(in <-<span class="kw">chan</span> <span class="typ">int</span>) {
+    <span class="kw">for</span> v := <span class="kw">range</span> in {
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(v)
+    }
+}
+
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+<span class="kw">go</span> <span class="fn">producer</span>(ch)
+<span class="fn">consumer</span>(ch)</pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Sending on a closed channel panics. Closing an already-closed channel panics. Only the <em>sender</em> should close, and only when there is exactly one sender. With multiple senders, use a <code>sync.WaitGroup</code> to detect when all are done, then close from a separate goroutine.</div>
+      </div>
+    </section>
+
+    <!-- ── 3. BUFFERED CHANNELS ──────────────────────────────────── -->
+    <section class="section" id="buffered">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🗄️</div>
+        <h2>Buffered Channels</h2>
+        <span class="section-tag">capacity · semaphore · decouple</span>
+      </div>
+
+      <div class="diagram">
+<pre>  ch := make(chan int, 3)    // capacity 3
+
+  ┌─────┬─────┬─────┐
+  │  1  │  2  │  3  │  &lt;── full: next send blocks until a slot is freed
+  └─────┴─────┴─────┘
+
+  Sender blocks only when buffer is full.
+  Receiver blocks only when buffer is empty.</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Buffered basics &amp; semaphore pattern</span>
+          <span class="card-badge badge-gold">Buffered</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Sender doesn't block until buffer is full</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">3</span>)
+ch <- <span class="num">1</span>; ch <- <span class="num">2</span>; ch <- <span class="num">3</span>
+<span class="cmt">// ch <- 4  would block here — buffer full</span>
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">len</span>(ch)) <span class="cmt">// 3 — items currently buffered</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">cap</span>(ch)) <span class="cmt">// 3 — total capacity</span>
+
+<span class="cmt">// Semaphore — limit to N goroutines running at once</span>
+<span class="kw">const</span> maxWorkers = <span class="num">5</span>
+sem := <span class="fn">make</span>(<span class="kw">chan</span> <span class="kw">struct</span>{}, maxWorkers)
+
+<span class="kw">for</span> _, task := <span class="kw">range</span> tasks {
+    sem <- <span class="kw">struct</span>{}{}           <span class="cmt">// acquire — blocks when 5 are running</span>
+    <span class="kw">go</span> <span class="kw">func</span>(t <span class="typ">Task</span>) {
+        <span class="kw">defer</span> <span class="kw">func</span>() { <-sem }() <span class="cmt">// release on exit</span>
+        <span class="fn">process</span>(t)
+    }(task)
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>Use a buffered channel when producer and consumer run at different speeds and you want to absorb bursts. Use an unbuffered channel when you need guaranteed synchronisation — the send only completes when someone is ready to receive.</div>
+      </div>
+    </section>
+
+    <!-- ── 4. SELECT ─────────────────────────────────────────────── -->
+    <section class="section" id="select">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔀</div>
+        <h2>Select</h2>
+        <span class="section-tag">multiplex · default · timeout · done</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Multiplexing channels</span>
+          <span class="card-badge badge-purple">select</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// select blocks until one case is ready — random if multiple are ready</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> v := <-ch1:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"from ch1:"</span>, v)
+<span class="kw">case</span> v := <-ch2:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"from ch2:"</span>, v)
+<span class="kw">case</span> ch3 <- <span class="num">99</span>:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"sent to ch3"</span>)
+}
+
+<span class="cmt">// default — makes select non-blocking</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> v := <-results:
+    <span class="fn">handle</span>(v)
+<span class="kw">default</span>:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"nothing ready"</span>)
+}</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Timeout pattern</span>
+            <span class="card-badge badge-purple">Timeout</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// time.After returns a channel that fires after d</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> result := <-work:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"got:"</span>, result)
+<span class="kw">case</span> <-<span class="pkg">time</span>.<span class="fn">After</span>(<span class="num">2</span> * <span class="pkg">time</span>.<span class="typ">Second</span>):
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"timed out"</span>)
+}</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Done channel — broadcast stop</span>
+            <span class="card-badge badge-purple">Done</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Closing a channel wakes ALL receivers at once</span>
+done := <span class="fn">make</span>(<span class="kw">chan</span> <span class="kw">struct</span>{})
+
+<span class="kw">go</span> <span class="kw">func</span>() {
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> <-done:
+            <span class="kw">return</span>
+        <span class="kw">case</span> v := <-work:
+            <span class="fn">process</span>(v)
+        }
+    }
+}()
+
+<span class="fn">close</span>(done) <span class="cmt">// signal all workers to stop</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. WAITGROUP ──────────────────────────────────────────── -->
+    <section class="section" id="waitgroup">
+      <div class="section-header">
+        <div class="section-icon icon-blue">⏳</div>
+        <h2>WaitGroup</h2>
+        <span class="section-tag">Add · Done · Wait · fan-out</span>
+      </div>
+
+      <div class="diagram">
+<pre>  wg.Add(3) ──▶ internal counter = 3
+
+  go work() ──┐
+  go work() ──┼── each calls wg.Done() on exit  (counter--)
+  go work() ──┘
+
+  wg.Wait() ── blocks main goroutine until counter reaches 0</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Fan-out with WaitGroup</span>
+          <span class="card-badge badge-blue">WaitGroup</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">var</span> wg <span class="pkg">sync</span>.<span class="typ">WaitGroup</span>
+
+urls := []<span class="typ">string</span>{<span class="str">"a.com"</span>, <span class="str">"b.com"</span>, <span class="str">"c.com"</span>}
+
+<span class="kw">for</span> _, url := <span class="kw">range</span> urls {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)                  <span class="cmt">// before launching — not inside the goroutine</span>
+    <span class="kw">go</span> <span class="kw">func</span>(u <span class="typ">string</span>) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()       <span class="cmt">// defer so it runs even on panic</span>
+        <span class="fn">fetch</span>(u)
+    }(url)
+}
+
+wg.<span class="fn">Wait</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"all fetches done"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Fan-out + fan-in — collecting results</span>
+          <span class="card-badge badge-blue">Pattern</span>
+        </div>
+        <div class="code-wrap">
+<pre>results := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">string</span>, <span class="fn">len</span>(urls))
+
+<span class="kw">var</span> wg <span class="pkg">sync</span>.<span class="typ">WaitGroup</span>
+<span class="kw">for</span> _, url := <span class="kw">range</span> urls {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)
+    <span class="kw">go</span> <span class="kw">func</span>(u <span class="typ">string</span>) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+        results <- <span class="fn">fetch</span>(u)
+    }(url)
+}
+
+<span class="cmt">// Close results once all workers finish</span>
+<span class="kw">go</span> <span class="kw">func</span>() { wg.<span class="fn">Wait</span>(); <span class="fn">close</span>(results) }()
+
+<span class="kw">for</span> r := <span class="kw">range</span> results {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(r)
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. MUTEX ──────────────────────────────────────────────── -->
+    <section class="section" id="mutex">
+      <div class="section-header">
+        <div class="section-icon icon-red">🔐</div>
+        <h2>Mutex</h2>
+        <span class="section-tag">Lock · Unlock · RWMutex</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Use a mutex when multiple goroutines share mutable state and channels would overcomplicate the design. The Go mantra is <em>"share memory by communicating"</em> — but a mutex is simply the right tool when protecting a single shared value or struct.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">sync.Mutex — exclusive access</span>
+          <span class="card-badge badge-red">Mutex</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">SafeCounter</span> <span class="kw">struct</span> {
+    mu    <span class="pkg">sync</span>.<span class="typ">Mutex</span>
+    count <span class="typ">int</span>
+}
+
+<span class="kw">func</span> (c *<span class="typ">SafeCounter</span>) <span class="fn">Inc</span>() {
+    c.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">Unlock</span>()  <span class="cmt">// defer prevents forgetting to unlock on every path</span>
+    c.count++
+}
+
+<span class="kw">func</span> (c *<span class="typ">SafeCounter</span>) <span class="fn">Value</span>() <span class="typ">int</span> {
+    c.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">Unlock</span>()
+    <span class="kw">return</span> c.count
+}
+
+sc := &<span class="typ">SafeCounter</span>{}
+<span class="kw">var</span> wg <span class="pkg">sync</span>.<span class="typ">WaitGroup</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">1000</span>; i++ {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="kw">defer</span> wg.<span class="fn">Done</span>(); sc.<span class="fn">Inc</span>() }()
+}
+wg.<span class="fn">Wait</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(sc.<span class="fn">Value</span>()) <span class="cmt">// 1000</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">sync.RWMutex — concurrent reads, exclusive writes</span>
+          <span class="card-badge badge-red">RWMutex</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// RLock/RUnlock — many readers allowed simultaneously</span>
+<span class="cmt">// Lock/Unlock   — exclusive write, blocks all readers and writers</span>
+<span class="kw">type</span> <span class="typ">Cache</span> <span class="kw">struct</span> {
+    mu    <span class="pkg">sync</span>.<span class="typ">RWMutex</span>
+    items <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">string</span>
+}
+
+<span class="kw">func</span> (c *<span class="typ">Cache</span>) <span class="fn">Get</span>(key <span class="typ">string</span>) (<span class="typ">string</span>, <span class="typ">bool</span>) {
+    c.mu.<span class="fn">RLock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">RUnlock</span>()
+    v, ok := c.items[key]
+    <span class="kw">return</span> v, ok
+}
+
+<span class="kw">func</span> (c *<span class="typ">Cache</span>) <span class="fn">Set</span>(key, val <span class="typ">string</span>) {
+    c.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> c.mu.<span class="fn">Unlock</span>()
+    c.items[key] = val
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Never copy a mutex after first use — the internal state makes a copy invalid. Pass structs containing mutexes by pointer, not by value. <code>go vet</code> detects this automatically.</div>
+      </div>
+    </section>
+
+    <!-- ── 7. SYNC.ONCE ──────────────────────────────────────────── -->
+    <section class="section" id="once">
+      <div class="section-header">
+        <div class="section-icon icon-gold">1️⃣</div>
+        <h2>sync.Once</h2>
+        <span class="section-tag">init once · singleton · lazy load</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Guaranteed single execution across goroutines</span>
+          <span class="card-badge badge-gold">Once</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Do(f) runs f exactly once, even if called from many goroutines</span>
+<span class="kw">var</span> (
+    once     <span class="pkg">sync</span>.<span class="typ">Once</span>
+    instance *<span class="typ">DB</span>
+)
+
+<span class="kw">func</span> <span class="fn">GetDB</span>() *<span class="typ">DB</span> {
+    once.<span class="fn">Do</span>(<span class="kw">func</span>() {
+        instance = <span class="fn">connectDB</span>()
+    })
+    <span class="kw">return</span> instance
+}
+
+<span class="cmt">// All concurrent callers wait for Do to finish, then get the same instance</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">10</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="fn">use</span>(<span class="fn">GetDB</span>()) }()
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div><code>sync.Once</code> is the correct way to implement lazy initialisation in Go. It's safer than a nil check guarded by a mutex because it handles the double-checked locking problem automatically — and the compiler can't reorder it away.</div>
+      </div>
+    </section>
+
+    <!-- ── 8. SYNC/ATOMIC ────────────────────────────────────────── -->
+    <section class="section" id="atomic">
+      <div class="section-header">
+        <div class="section-icon icon-purple">⚛️</div>
+        <h2>sync/atomic</h2>
+        <span class="section-tag">Add · Load · Store · CAS</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Atomic operations are lock-free and faster than a mutex for single values. Use them for counters, flags, and version stamps. Use a mutex when you need to protect a group of related fields together as a unit.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Counters &amp; flags</span>
+            <span class="card-badge badge-purple">atomic</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">import</span> <span class="str">"sync/atomic"</span>
+
+<span class="kw">var</span> counter <span class="pkg">atomic</span>.<span class="typ">Int64</span>
+
+counter.<span class="fn">Add</span>(<span class="num">1</span>)           <span class="cmt">// increment</span>
+counter.<span class="fn">Add</span>(-<span class="num">1</span>)          <span class="cmt">// decrement</span>
+v := counter.<span class="fn">Load</span>()     <span class="cmt">// safe read</span>
+counter.<span class="fn">Store</span>(<span class="num">0</span>)         <span class="cmt">// reset</span>
+
+<span class="cmt">// Bool flag</span>
+<span class="kw">var</span> ready <span class="pkg">atomic</span>.<span class="typ">Bool</span>
+ready.<span class="fn">Store</span>(<span class="kw">true</span>)
+<span class="kw">if</span> ready.<span class="fn">Load</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"ready"</span>)
+}</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Compare-and-swap (CAS)</span>
+            <span class="card-badge badge-purple">CAS</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Swaps only if current value == old; returns true if it did</span>
+<span class="kw">var</span> state <span class="pkg">atomic</span>.<span class="typ">Int32</span>
+
+<span class="kw">const</span> (idle = <span class="num">0</span>; running = <span class="num">1</span>)
+
+<span class="cmt">// Transition idle → running exactly once</span>
+<span class="kw">if</span> state.<span class="fn">CompareAndSwap</span>(idle, running) {
+    <span class="kw">go</span> <span class="fn">doWork</span>()
+}
+
+<span class="cmt">// Swap — unconditional, returns old value</span>
+old := state.<span class="fn">Swap</span>(idle)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"was:"</span>, old)</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. CONTEXT ────────────────────────────────────────────── -->
+    <section class="section" id="context">
+      <div class="section-header">
+        <div class="section-icon icon-green">🎯</div>
+        <h2>Context</h2>
+        <span class="section-tag">cancellation · timeout · propagation</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Context is the standard way to propagate cancellation and deadlines across goroutine boundaries. Pass it as the <strong>first argument</strong> to any function that starts goroutines or calls external systems. The full context API is on the <a href="context-package-guide.html">context package page</a>.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Cancelling goroutines</span>
+          <span class="card-badge badge-green">WithCancel</span>
+        </div>
+        <div class="code-wrap">
+<pre>ctx, cancel := <span class="pkg">context</span>.<span class="fn">WithCancel</span>(<span class="pkg">context</span>.<span class="fn">Background</span>())
+<span class="kw">defer</span> <span class="fn">cancel</span>()  <span class="cmt">// always defer — releases context resources</span>
+
+<span class="kw">go</span> <span class="kw">func</span>() {
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> <-ctx.<span class="fn">Done</span>():
+            <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"stopped:"</span>, ctx.<span class="fn">Err</span>())
+            <span class="kw">return</span>
+        <span class="kw">case</span> v := <-work:
+            <span class="fn">process</span>(v)
+        }
+    }
+}()
+
+<span class="fn">cancel</span>() <span class="cmt">// ctx.Done() is closed, goroutine exits on next select</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Timeout — deadline across the call tree</span>
+          <span class="card-badge badge-green">WithTimeout</span>
+        </div>
+        <div class="code-wrap">
+<pre>ctx, cancel := <span class="pkg">context</span>.<span class="fn">WithTimeout</span>(<span class="pkg">context</span>.<span class="fn">Background</span>(), <span class="num">3</span>*<span class="pkg">time</span>.<span class="typ">Second</span>)
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+<span class="cmt">// HTTP request honours the deadline automatically</span>
+req, _ := <span class="pkg">http</span>.<span class="fn">NewRequestWithContext</span>(ctx, <span class="str">"GET"</span>, url, <span class="kw">nil</span>)
+resp, err := <span class="pkg">http</span>.<span class="typ">DefaultClient</span>.<span class="fn">Do</span>(req)
+<span class="kw">if</span> <span class="pkg">errors</span>.<span class="fn">Is</span>(err, <span class="pkg">context</span>.<span class="typ">DeadlineExceeded</span>) {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"timed out"</span>)
+}
+
+<span class="cmt">// Manual check in your own goroutine</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> result := <-<span class="fn">compute</span>(ctx):
+    <span class="fn">use</span>(result)
+<span class="kw">case</span> <-ctx.<span class="fn">Done</span>():
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"deadline exceeded"</span>)
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 99. QUICK REFERENCE ───────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">Syntax cheat-sheet</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Syntax</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Start goroutine</td><td>go f()</td><td>Returns immediately; goroutine runs concurrently</td></tr>
+          <tr><td>Unbuffered channel</td><td>make(chan T)</td><td>Sender blocks until receiver is ready</td></tr>
+          <tr><td>Buffered channel</td><td>make(chan T, n)</td><td>Sender blocks only when buffer is full</td></tr>
+          <tr><td>Send</td><td>ch &lt;- v</td><td>Blocks if full / no receiver</td></tr>
+          <tr><td>Receive</td><td>v := &lt;-ch</td><td>Blocks if empty / no sender</td></tr>
+          <tr><td>Comma-ok receive</td><td>v, ok := &lt;-ch</td><td>ok=false when closed and drained</td></tr>
+          <tr><td>Close</td><td>close(ch)</td><td>Sender only; panics if already closed</td></tr>
+          <tr><td>Drain channel</td><td>for v := range ch</td><td>Exits when channel is closed</td></tr>
+          <tr><td>Send-only param</td><td>func f(ch chan&lt;- T)</td><td>Compiler enforces direction</td></tr>
+          <tr><td>Receive-only param</td><td>func f(ch &lt;-chan T)</td><td>Compiler enforces direction</td></tr>
+          <tr><td>Select</td><td>select { case &lt;-ch: }</td><td>Blocks until one case is ready</td></tr>
+          <tr><td>Non-blocking select</td><td>select { … default: }</td><td>Falls through if no case ready</td></tr>
+          <tr><td>Timeout</td><td>case &lt;-time.After(d):</td><td>Fires after duration d</td></tr>
+          <tr><td>Broadcast stop</td><td>close(done)</td><td>Unblocks all goroutines selecting on done</td></tr>
+          <tr><td>WaitGroup add</td><td>wg.Add(n)</td><td>Call before launching the goroutine</td></tr>
+          <tr><td>WaitGroup done</td><td>defer wg.Done()</td><td>Inside each goroutine; defer is safest</td></tr>
+          <tr><td>WaitGroup wait</td><td>wg.Wait()</td><td>Blocks until counter reaches 0</td></tr>
+          <tr><td>Mutex lock</td><td>mu.Lock() + defer mu.Unlock()</td><td>Exclusive; always defer unlock</td></tr>
+          <tr><td>RWMutex read</td><td>mu.RLock() / mu.RUnlock()</td><td>Multiple readers allowed at once</td></tr>
+          <tr><td>Once</td><td>once.Do(func() { … })</td><td>Runs exactly once across all goroutines</td></tr>
+          <tr><td>Atomic counter</td><td>var c atomic.Int64; c.Add(1)</td><td>Lock-free; one value at a time</td></tr>
+          <tr><td>Atomic load</td><td>c.Load()</td><td>Safe concurrent read</td></tr>
+          <tr><td>CAS</td><td>c.CompareAndSwap(old, new)</td><td>Returns true if swap occurred</td></tr>
+          <tr><td>Cancel context</td><td>ctx, cancel := context.WithCancel(p)</td><td>Always defer cancel()</td></tr>
+          <tr><td>Timeout context</td><td>context.WithTimeout(p, d)</td><td>ctx.Done() closes after d</td></tr>
+          <tr><td>Check cancelled</td><td>&lt;-ctx.Done()</td><td>Closed on cancel or deadline</td></tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
 
-  <nav class="toc-nav"></nav>
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#goroutines">1 — Goroutines</a></li>
+      <li><a href="#channels">2 — Channels</a></li>
+      <li><a href="#buffered">3 — Buffered Channels</a></li>
+      <li><a href="#select">4 — Select</a></li>
+      <li><a href="#waitgroup">5 — WaitGroup</a></li>
+      <li><a href="#mutex">6 — Mutex</a></li>
+      <li><a href="#once">7 — sync.Once</a></li>
+      <li><a href="#atomic">8 — sync/atomic</a></li>
+      <li><a href="#context">9 — Context</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
 </div>
 
 </body>
