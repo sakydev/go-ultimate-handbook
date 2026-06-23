@@ -20,6 +20,8 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 | Reflection | 🚧 In progress |
 | File & Data | 🚧 In progress |
 | Web | 🚧 In progress |
+| Packages &amp; Modules | 🚧 In progress |
+| Performance | 🚧 In progress |
 
 **Standard Library**
 | Package | Status |
