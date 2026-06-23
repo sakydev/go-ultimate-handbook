@@ -714,6 +714,11 @@ count := <span class="num">5</span>
 }</pre>
         </div>
       </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>You dereference a pointer when you need to <strong>read or write the value it points to</strong> — not the address. Common reasons: mutating a caller's variable from inside a function, sharing a single large struct without copying it, or building linked data structures where nodes reference each other.</div>
+      </div>
     </section>
 
     <!-- ── 4. RUNES ──────────────────────────────────────────────── -->
@@ -1130,9 +1135,13 @@ funcs[<span class="num">2</span>]() <span class="cmt">// 2</span>
 }
 <span class="fn">double</span>(<span class="num">5</span>) <span class="cmt">// 10</span>
 
-<span class="cmt">// Avoid defer inside a tight loop — each adds overhead and they</span>
-<span class="cmt">// don't run until the function returns, not the loop iteration</span></pre>
+</pre>
         </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Avoid <code>defer</code> inside a tight loop. Each call is registered separately and none of them run until the enclosing <em>function</em> returns — not at the end of each iteration. This leaks resources and adds overhead proportional to loop count.</div>
       </div>
     </section>
 
