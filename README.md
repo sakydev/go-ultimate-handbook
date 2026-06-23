@@ -1,6 +1,8 @@
 # Go Ultimate Handbook
 
-A visual, example-driven reference for the Go programming language — built for interview prep and everyday use.
+A visual, example-driven reference for the Go programming language.
+
+**Who this is for:** developers who already know Go but want to sharpen up before a technical interview, or who haven't written Go in a while and need to clear off the rust. This is not a beginner's guide — it assumes you can read code and just need the right examples in front of you.
 
 ## Viewing
 
