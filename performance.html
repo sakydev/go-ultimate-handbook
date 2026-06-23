@@ -5,44 +5,451 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Go Performance — Ultimate Handbook</title>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;--accent:#0a8060;--accent2:#0969da;--accent3:#9a6700;--accent4:#cf222e;--text:#1f2328;--muted:#656d76;--tag-bg:#dafbe1;--tag-text:#1a7f37;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--font-sans:'Inter','Segoe UI',system-ui,sans-serif;--radius:12px}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;padding:0 0 80px}
-    a{color:var(--accent2);text-decoration:none}
-    .hero{background:linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%);border-bottom:1px solid var(--border);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%);pointer-events:none}
-    .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--tag-bg);color:var(--tag-text);border:1px solid #82cfaa;border-radius:100px;padding:4px 14px;margin-bottom:20px}
-    .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
-    .hero h1 span{color:var(--accent2)}
-    .hero p{font-size:1.1rem;color:var(--muted);max-width:540px;margin:0 auto}
-    .layout{display:grid;grid-template-columns:200px 1fr 220px;max-width:1300px;margin:0 auto}
-    .pkg-nav{position:sticky;top:24px;align-self:start;padding:28px 0 32px 24px;height:fit-content}
-    .home-link{display:block;font-weight:700;font-size:.88rem;color:var(--text);padding:4px 10px 18px;letter-spacing:-.01em;text-decoration:none}
-    .home-link:hover{color:var(--accent2)}
-    .nav-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px;margin-top:8px}
-    .pkg-list{list-style:none;display:flex;flex-direction:column;gap:2px}
-    .pkg-list a{display:flex;align-items:center;gap:8px;font-size:.84rem;font-family:var(--font-mono);color:var(--muted);padding:6px 10px;border-radius:7px;border:1px solid transparent;transition:all .15s;text-decoration:none}
-    .pkg-list a:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
-    .pkg-list a.active{color:var(--accent2);background:rgba(9,105,218,.07);border-color:rgba(9,105,218,.2);font-weight:600}
-    .pkg-list a .pkg-icon{font-size:.85rem;width:18px;text-align:center}
-    .content{padding:40px 32px;min-width:0;border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh}
-    .toc-nav{position:sticky;top:24px;align-self:start;padding:32px 24px 32px 0;height:fit-content}
-    .cs-icon{font-size:2.8rem;margin-bottom:16px}
-    .cs-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .cs-sub{color:var(--muted);font-size:.92rem;margin-bottom:28px}
-    .cs-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
-    .cs-topics span{font-family:var(--font-mono);font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--muted)}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.pkg-nav,.toc-nav{display:none}.content{padding:24px 16px;border:none}}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .toc-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 24px 32px 0;
+      height: fit-content;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green  { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold   { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red    { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple { background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .kw  { color: #cf222e; }
+    .fn  { color: #8250df; }
+    .str { color: #0a3069; }
+    .cmt { color: #6e7781; font-style: italic; }
+    .num { color: #0550ae; }
+    .pkg { color: #0969da; }
+    .typ { color: #953800; }
+    .out { color: #1a7f37; }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td { padding: 9px 14px; vertical-align: top; }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent3);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+
 <div class="hero">
   <div class="hero-badge">Language Deep Dive</div>
   <h1>Go <span>Performance</span></h1>
-  <p>Stack vs heap, escape analysis, pprof profiling, goroutine leaks, and writing efficient Go.</p>
+  <p>Stack vs heap, escape analysis, pprof profiling, sync.Pool, goroutine leaks, and writing efficient Go.</p>
+  <div class="hero-pills">
+    <span>Stack vs heap</span>
+    <span>Escape analysis</span>
+    <span>pprof</span>
+    <span>sync.Pool</span>
+    <span>Inlining</span>
+    <span>allocs/op</span>
+    <span>Goroutine leaks</span>
+    <span>strings.Builder</span>
+  </div>
 </div>
+
 <div class="layout">
+
   <nav class="pkg-nav">
     <a href="index.html" class="home-link">Go Handbook</a>
     <div class="nav-group">Language</div>
@@ -55,7 +462,7 @@
       <li><a href="file-data.html"><span class="pkg-icon">📁</span>File &amp; Data</a></li>
       <li><a href="web.html"><span class="pkg-icon">🌐</span>Web</a></li>
       <li><a href="packages-modules.html"><span class="pkg-icon">🗃</span>Packages &amp; Modules</a></li>
-      <li><a href="performance.html"><span class="pkg-icon">⚡</span>Performance</a></li>
+      <li><a href="performance.html" class="active"><span class="pkg-icon">⚡</span>Performance</a></li>
     </ul>
     <div class="nav-group">Packages</div>
     <ul class="pkg-list">
@@ -72,15 +479,601 @@
       <li><a href="slices-package-guide.html"><span class="pkg-icon">🗂</span>slices</a></li>
     </ul>
   </nav>
+
   <main class="content">
-    <div class="cs-icon">⚡</div>
-    <h2 class="cs-title">Coming Soon</h2>
-    <p class="cs-sub">This page is being written. Topics that will be covered:</p>
-    <div class="cs-topics">
-      <span>Stack vs heap</span><span>Escape analysis</span><span>pprof</span><span>Benchmarking</span><span>sync.Pool</span><span>Goroutine leaks</span><span>Memory leaks</span><span>Inlining</span><span>allocs/op</span>
-    </div>
+
+    <!-- ── 1. STACK VS HEAP ──────────────────────────────────────── -->
+    <section class="section" id="stack-heap">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🏗️</div>
+        <h2>Stack vs Heap</h2>
+        <span class="section-tag">allocation · escape analysis · GC</span>
+      </div>
+
+      <div class="diagram">
+<pre>  Stack                              Heap
+  ──────────────────────             ──────────────────────────────
+  Per-goroutine (starts at 8KB)      Shared across all goroutines
+  Grows/shrinks automatically        Managed by the GC
+  Fast: bump pointer allocation      Slower: GC must scan and collect
+  Freed when function returns        Freed when no more references
+
+  Rule: if a value's lifetime is bounded to a function call → stack
+        if it escapes (returned, sent to channel, stored) → heap</pre>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">What causes heap allocation</span>
+            <span class="card-badge badge-blue">Escape</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Returning a pointer — value escapes to heap</span>
+<span class="kw">func</span> <span class="fn">newUser</span>() *<span class="typ">User</span> {
+    u := <span class="typ">User</span>{Name: <span class="str">"Alice"</span>}  <span class="cmt">// u escapes</span>
+    <span class="kw">return</span> &u
+}
+
+<span class="cmt">// Storing in interface — concrete type escapes</span>
+<span class="kw">var</span> i <span class="kw">any</span> = <span class="typ">User</span>{}  <span class="cmt">// User escapes to heap</span>
+
+<span class="cmt">// Sending pointer on channel — escapes</span>
+ch <- &<span class="typ">User</span>{}
+
+<span class="cmt">// Closure capturing a variable — escapes</span>
+x := <span class="num">42</span>
+f := <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(x) }  <span class="cmt">// x escapes</span>
+_ = f</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Escape analysis — see the decisions</span>
+            <span class="card-badge badge-blue">-gcflags</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt"># Show escape analysis decisions</span>
+go build -gcflags="-m" ./...
+
+<span class="cmt"># More verbose (shows why)</span>
+go build -gcflags="-m=2" ./...
+
+<span class="cmt">// Sample output:</span>
+<span class="cmt">// ./main.go:8:2: &u escapes to heap</span>
+<span class="cmt">// ./main.go:12:14: x escapes to heap</span>
+<span class="cmt">// ./main.go:5:17: User{} does not escape</span>
+
+<span class="cmt"># Disable inlining to see more escape detail</span>
+go build -gcflags="-m -l" ./...</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. PPROF ──────────────────────────────────────────────── -->
+    <section class="section" id="pprof">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🔬</div>
+        <h2>pprof Profiling</h2>
+        <span class="section-tag">CPU · memory · goroutine · go tool pprof</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Profile before you optimize. pprof tells you exactly where CPU time and memory are spent — without it, optimizations are guesswork. Always benchmark before and after a change to confirm impact.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">HTTP pprof endpoint — always-on profiling</span>
+          <span class="card-badge badge-gold">net/http/pprof</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">import</span> _ <span class="str">"net/http/pprof"</span>  <span class="cmt">// registers /debug/pprof/ routes</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="cmt">// Expose on a separate port (never on your public port)</span>
+    <span class="kw">go</span> <span class="pkg">http</span>.<span class="fn">ListenAndServe</span>(<span class="str">":6060"</span>, <span class="kw">nil</span>)
+    <span class="cmt">// ... start your actual server</span>
+}
+
+<span class="cmt"># Capture 30s CPU profile</span>
+go tool pprof http://localhost:<span class="num">6060</span>/debug/pprof/profile?seconds=30
+
+<span class="cmt"># Heap profile</span>
+go tool pprof http://localhost:<span class="num">6060</span>/debug/pprof/heap
+
+<span class="cmt"># Goroutine dump</span>
+go tool pprof http://localhost:<span class="num">6060</span>/debug/pprof/goroutine
+
+<span class="cmt"># Open interactive web UI</span>
+go tool pprof -http=:8081 cpu.prof</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Programmatic profiling</span>
+            <span class="card-badge badge-gold">runtime/pprof</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">import</span> <span class="str">"runtime/pprof"</span>
+
+<span class="cmt">// CPU profile</span>
+f, _ := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"cpu.prof"</span>)
+<span class="pkg">pprof</span>.<span class="fn">StartCPUProfile</span>(f)
+<span class="kw">defer</span> <span class="pkg">pprof</span>.<span class="fn">StopCPUProfile</span>()
+
+<span class="cmt">// Heap profile (call after workload)</span>
+mf, _ := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"mem.prof"</span>)
+<span class="pkg">runtime</span>.<span class="fn">GC</span>()  <span class="cmt">// run GC for accurate stats</span>
+<span class="pkg">pprof</span>.<span class="fn">WriteHeapProfile</span>(mf)
+mf.<span class="fn">Close</span>()</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Benchmark + pprof</span>
+            <span class="card-badge badge-gold">-cpuprofile</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt"># Run benchmark and produce profiles in one step</span>
+go test -bench=BenchmarkFoo \
+    -cpuprofile=cpu.prof \
+    -memprofile=mem.prof \
+    ./...
+
+<span class="cmt"># Analyze the CPU profile</span>
+go tool pprof cpu.prof
+
+<span class="cmt"># Inside pprof REPL:</span>
+<span class="cmt"># top10       — top 10 functions by self time</span>
+<span class="cmt"># list Foo    — annotated source for function Foo</span>
+<span class="cmt"># web         — open flame graph in browser</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. REDUCING ALLOCATIONS ──────────────────────────────── -->
+    <section class="section" id="allocations">
+      <div class="section-header">
+        <div class="section-icon icon-green">♻️</div>
+        <h2>Reducing Allocations</h2>
+        <span class="section-tag">sync.Pool · strings.Builder · pre-alloc</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">sync.Pool — reuse temporary objects</span>
+          <span class="card-badge badge-green">sync.Pool</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Pool holds temporary objects to reduce GC pressure</span>
+<span class="cmt">// Objects may be evicted at any time — never store state in them</span>
+<span class="kw">var</span> bufPool = <span class="pkg">sync</span>.<span class="typ">Pool</span>{
+    New: <span class="kw">func</span>() <span class="kw">any</span> {
+        <span class="kw">return</span> <span class="fn">new</span>(<span class="pkg">bytes</span>.<span class="typ">Buffer</span>)
+    },
+}
+
+<span class="kw">func</span> <span class="fn">buildResponse</span>(data []<span class="typ">byte</span>) []<span class="typ">byte</span> {
+    buf := bufPool.<span class="fn">Get</span>().(*<span class="pkg">bytes</span>.<span class="typ">Buffer</span>)
+    buf.<span class="fn">Reset</span>()                    <span class="cmt">// always reset before use</span>
+    <span class="kw">defer</span> bufPool.<span class="fn">Put</span>(buf)
+
+    buf.<span class="fn">Write</span>(data)
+    <span class="kw">return</span> buf.<span class="fn">Bytes</span>()
+}
+
+<span class="cmt">// Before sync.Pool: N allocs/op (one Buffer per call)</span>
+<span class="cmt">// After  sync.Pool: ~0 allocs/op (Buffer is reused)</span></pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">strings.Builder — build strings without allocs</span>
+            <span class="card-badge badge-green">strings.Builder</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Concatenating with + allocates on every iteration</span>
+<span class="kw">var</span> s <span class="typ">string</span>
+<span class="kw">for</span> _, w := <span class="kw">range</span> words {
+    s += w  <span class="cmt">// O(n²) allocations</span>
+}
+
+<span class="cmt">// strings.Builder — single allocation at the end</span>
+<span class="kw">var</span> sb <span class="pkg">strings</span>.<span class="typ">Builder</span>
+sb.<span class="fn">Grow</span>(<span class="fn">len</span>(words) * <span class="num">8</span>)  <span class="cmt">// hint capacity if known</span>
+<span class="kw">for</span> _, w := <span class="kw">range</span> words {
+    sb.<span class="fn">WriteString</span>(w)
+}
+result := sb.<span class="fn">String</span>()</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Pre-allocate slices and maps</span>
+            <span class="card-badge badge-green">make with cap</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Without pre-alloc: grows 2x repeatedly, many allocs</span>
+<span class="kw">var</span> results []<span class="typ">int</span>
+<span class="kw">for</span> i := <span class="kw">range</span> items {
+    results = <span class="fn">append</span>(results, <span class="fn">process</span>(items[i]))
+}
+
+<span class="cmt">// With pre-alloc: zero reallocations</span>
+results = <span class="fn">make</span>([]<span class="typ">int</span>, <span class="num">0</span>, <span class="fn">len</span>(items))
+<span class="kw">for</span> i := <span class="kw">range</span> items {
+    results = <span class="fn">append</span>(results, <span class="fn">process</span>(items[i]))
+}
+
+<span class="cmt">// Pre-alloc map</span>
+m := <span class="fn">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>, <span class="fn">len</span>(keys))
+<span class="kw">for</span> _, k := <span class="kw">range</span> keys {
+    m[k]++
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. INLINING ───────────────────────────────────────────── -->
+    <section class="section" id="inlining">
+      <div class="section-header">
+        <div class="section-icon icon-purple">⚡</div>
+        <h2>Inlining</h2>
+        <span class="section-tag">-gcflags · inline budget · noinline</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>The Go compiler inlines small functions at their call sites, eliminating the function call overhead and enabling further optimizations. A function is inlineable if its AST node count is within the inline budget (~80 nodes). Closures, <code>recover()</code>, and large functions are not inlined.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Check what gets inlined</span>
+            <span class="card-badge badge-purple">-gcflags -m</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt"># -m shows inlining decisions alongside escape analysis</span>
+go build -gcflags="-m" ./...
+
+<span class="cmt">// Output examples:</span>
+<span class="cmt">// ./math.go:5:6: can inline Add</span>
+<span class="cmt">// ./math.go:12:6: cannot inline Process: function too complex</span>
+<span class="cmt">// ./main.go:20:12: inlining call to Add</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Writing inlineable functions</span>
+            <span class="card-badge badge-purple">Small functions</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Inlineable: simple, small, no recover</span>
+<span class="kw">func</span> <span class="fn">max</span>(a, b <span class="typ">int</span>) <span class="typ">int</span> {
+    <span class="kw">if</span> a > b { <span class="kw">return</span> a }
+    <span class="kw">return</span> b
+}
+
+<span class="cmt">// Not inlineable: too complex, or uses recover</span>
+<span class="kw">func</span> <span class="fn">safeDiv</span>(a, b <span class="typ">int</span>) (result <span class="typ">int</span>) {
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        <span class="kw">if</span> r := <span class="fn">recover</span>(); r != <span class="kw">nil</span> { result = <span class="num">0</span> }
+    }()
+    <span class="kw">return</span> a / b
+}
+
+<span class="cmt">// Force no inlining (useful for benchmarks)</span>
+<span class="cmt">//go:noinline</span>
+<span class="kw">func</span> <span class="fn">doWork</span>() {}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. GOROUTINE LEAKS ────────────────────────────────────── -->
+    <section class="section" id="goroutine-leaks">
+      <div class="section-header">
+        <div class="section-icon icon-red">🚰</div>
+        <h2>Goroutine Leaks</h2>
+        <span class="section-tag">blocked goroutines · goleak · runtime</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>A leaked goroutine is one that is blocked indefinitely — waiting on a channel that will never be written to, or a mutex that will never be released. Leaked goroutines consume memory and OS resources forever. In servers, leaks compound over time and cause OOM crashes.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Common leak patterns and fixes</span>
+          <span class="card-badge badge-red">Leak patterns</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// ✗ LEAK: goroutine blocks on send if nobody reads</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)  <span class="cmt">// unbuffered</span>
+<span class="kw">go func</span>() {
+    result := <span class="fn">doWork</span>()
+    ch <- result  <span class="cmt">// blocks forever if caller already returned</span>
+}()
+<span class="kw">return</span>  <span class="cmt">// goroutine is now leaked</span>
+
+<span class="cmt">// ✓ FIX: buffered channel or context cancellation</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">1</span>)  <span class="cmt">// buffered: send never blocks</span>
+
+<span class="cmt">// ✓ FIX: use context to stop the goroutine</span>
+<span class="kw">go func</span>() {
+    <span class="kw">select</span> {
+    <span class="kw">case</span> ch <- <span class="fn">doWork</span>():
+    <span class="kw">case</span> <-ctx.<span class="fn">Done</span>():  <span class="cmt">// exits if context is cancelled</span>
+    }
+}()</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Detect leaks in tests with goleak</span>
+            <span class="card-badge badge-red">goleak</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">import</span> <span class="str">"go.uber.org/goleak"</span>
+
+<span class="kw">func</span> <span class="fn">TestMain</span>(m *<span class="pkg">testing</span>.<span class="typ">M</span>) {
+    <span class="pkg">goleak</span>.<span class="fn">VerifyTestMain</span>(m)
+}
+
+<span class="cmt">// Or per test:</span>
+<span class="kw">func</span> <span class="fn">TestWorker</span>(t *<span class="pkg">testing</span>.<span class="typ">T</span>) {
+    <span class="kw">defer</span> <span class="pkg">goleak</span>.<span class="fn">VerifyNone</span>(t)
+    <span class="cmt">// test code here</span>
+    <span class="cmt">// goleak.VerifyNone fails if any goroutine leaked</span>
+}</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Count goroutines at runtime</span>
+            <span class="card-badge badge-red">runtime</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Quick check: current goroutine count</span>
+before := <span class="pkg">runtime</span>.<span class="fn">NumGoroutine</span>()
+<span class="fn">doSomething</span>()
+after := <span class="pkg">runtime</span>.<span class="fn">NumGoroutine</span>()
+
+<span class="kw">if</span> after > before {
+    t.<span class="fn">Errorf</span>(<span class="str">"goroutine leak: before=%d after=%d"</span>, before, after)
+}
+
+<span class="cmt">// pprof goroutine profile shows stack traces</span>
+<span class="cmt">// of all live goroutines — useful to identify what's blocked</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. MEMORY EFFICIENCY ──────────────────────────────────── -->
+    <section class="section" id="memory">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🧠</div>
+        <h2>Memory Efficiency</h2>
+        <span class="section-tag">struct layout · value types · GC pressure</span>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Struct field ordering — reduce padding</span>
+            <span class="card-badge badge-gold">Alignment</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Bad: compiler inserts 7 bytes of padding</span>
+<span class="kw">type</span> <span class="typ">Bad</span> <span class="kw">struct</span> {
+    a <span class="typ">bool</span>    <span class="cmt">// 1 byte</span>
+             <span class="cmt">// 7 bytes padding</span>
+    b <span class="typ">int64</span>   <span class="cmt">// 8 bytes</span>
+    c <span class="typ">bool</span>    <span class="cmt">// 1 byte</span>
+             <span class="cmt">// 7 bytes padding</span>
+}  <span class="cmt">// total: 24 bytes</span>
+
+<span class="cmt">// Good: largest fields first</span>
+<span class="kw">type</span> <span class="typ">Good</span> <span class="kw">struct</span> {
+    b <span class="typ">int64</span>   <span class="cmt">// 8 bytes</span>
+    a <span class="typ">bool</span>    <span class="cmt">// 1 byte</span>
+    c <span class="typ">bool</span>    <span class="cmt">// 1 byte</span>
+             <span class="cmt">// 6 bytes padding</span>
+}  <span class="cmt">// total: 16 bytes</span>
+
+<span class="cmt">// Check size: unsafe.Sizeof(Bad{}) → 24</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Value types vs pointer types</span>
+            <span class="card-badge badge-gold">Values</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Prefer values for small structs (≤ ~3 words)</span>
+<span class="cmt">// Copying is cheaper than a pointer dereference</span>
+<span class="kw">type</span> <span class="typ">Point</span> <span class="kw">struct</span>{ X, Y <span class="typ">float64</span> }
+<span class="kw">func</span> <span class="fn">distance</span>(p <span class="typ">Point</span>) <span class="typ">float64</span> { ... }  <span class="cmt">// value: stays on stack</span>
+
+<span class="cmt">// Use pointers for large structs to avoid copying</span>
+<span class="kw">type</span> <span class="typ">Config</span> <span class="kw">struct</span>{ ... }  <span class="cmt">// 100+ fields</span>
+<span class="kw">func</span> <span class="fn">process</span>(c *<span class="typ">Config</span>) { ... }  <span class="cmt">// pointer: single 8-byte copy</span>
+
+<span class="cmt">// Slice of values vs slice of pointers:</span>
+[]<span class="typ">Point</span>   <span class="cmt">// contiguous memory — cache friendly</span>
+[]*<span class="typ">Point</span>  <span class="cmt">// scattered heap objects — more GC work</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Avoiding fmt.Sprintf for hot paths</span>
+          <span class="card-badge badge-gold">Allocations</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// fmt.Sprintf always allocates (uses reflection internally)</span>
+msg := <span class="pkg">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"user %d not found"</span>, id)  <span class="cmt">// alloc</span>
+
+<span class="cmt">// strconv is allocation-free for numeric conversions</span>
+<span class="kw">var</span> buf [<span class="num">32</span>]<span class="typ">byte</span>
+b := <span class="pkg">strconv</span>.<span class="fn">AppendInt</span>(buf[:<span class="num">0</span>], <span class="typ">int64</span>(id), <span class="num">10</span>)  <span class="cmt">// no alloc</span>
+
+<span class="cmt">// errors.New creates a constant error — safe to reuse</span>
+<span class="kw">var</span> <span class="typ">ErrNotFound</span> = <span class="pkg">errors</span>.<span class="fn">New</span>(<span class="str">"not found"</span>)
+<span class="cmt">// Return ErrNotFound instead of fmt.Errorf("not found") in hot paths</span>
+
+<span class="cmt">// Only use fmt.Errorf (with %w) when wrapping with context at boundaries</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. READING BENCHMARK OUTPUT ──────────────────────────── -->
+    <section class="section" id="benchmarks">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📊</div>
+        <h2>Reading Benchmark Output</h2>
+        <span class="section-tag">ns/op · B/op · allocs/op · benchstat</span>
+      </div>
+
+      <div class="diagram">
+<pre>  go test -bench=. -benchmem ./...
+
+  BenchmarkEncode-8    1234567    42.3 ns/op    64 B/op    1 allocs/op
+  │               │    │          │              │          └── heap allocations per op
+  │               │    │          │              └──────────── bytes allocated per op
+  │               │    │          └─────────────────────────── wall time per operation
+  │               │    └────────────────────────────────────── iterations run
+  │               └─────────────────────────────────────────── GOMAXPROCS (CPU count)
+  └─────────────────────────────────────────────────────────── benchmark name</pre>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">benchstat — compare two runs</span>
+            <span class="card-badge badge-blue">benchstat</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt"># Install</span>
+go install golang.org/x/perf/cmd/benchstat@latest
+
+<span class="cmt"># Run before and after, save output</span>
+go test -bench=. -count=5 ./... > before.txt
+<span class="cmt"># (make your change)</span>
+go test -bench=. -count=5 ./... > after.txt
+
+<span class="cmt"># Compare</span>
+benchstat before.txt after.txt
+
+<span class="cmt"># Output shows % change and p-value:</span>
+<span class="cmt"># BenchmarkFoo  42.3ns ± 2%  31.1ns ± 1%  -26.5% (p=0.008)</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">What to look for</span>
+            <span class="card-badge badge-blue">Interpretation</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// High allocs/op → look for heap escapes,</span>
+<span class="cmt">//   string concatenation, interface conversions</span>
+
+<span class="cmt">// High B/op with low allocs/op → large objects,</span>
+<span class="cmt">//   consider pooling or in-place updates</span>
+
+<span class="cmt">// High ns/op with 0 allocs → CPU-bound;</span>
+<span class="cmt">//   profile with -cpuprofile to find hot spots</span>
+
+<span class="cmt">// Noisy results (wide ± range) → run with -count=10,</span>
+<span class="cmt">//   close background apps, use benchstat for stats</span>
+
+<span class="cmt">// Always measure the whole system; microbenchmarks</span>
+<span class="cmt">// can be misleading if the hot path is elsewhere</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 99. QUICK REFERENCE ───────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">Cheat-sheet</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Command / Call</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Escape analysis</td><td>go build -gcflags="-m" ./...</td><td>Shows what escapes to heap</td></tr>
+          <tr><td>Verbose escape</td><td>go build -gcflags="-m=2" ./...</td><td>Shows why each decision was made</td></tr>
+          <tr><td>Disable inlining</td><td>go build -gcflags="-l" ./...</td><td>For debugging; not for production</td></tr>
+          <tr><td>Inlining decisions</td><td>go build -gcflags="-m" ./...</td><td>"can inline" / "inlining call to"</td></tr>
+          <tr><td>CPU profile (HTTP)</td><td>/debug/pprof/profile?seconds=30</td><td>Requires import _ "net/http/pprof"</td></tr>
+          <tr><td>Heap profile (HTTP)</td><td>/debug/pprof/heap</td><td>Current in-use allocations</td></tr>
+          <tr><td>Goroutine dump</td><td>/debug/pprof/goroutine</td><td>Stack traces of all goroutines</td></tr>
+          <tr><td>Analyze profile</td><td>go tool pprof -http=:8081 cpu.prof</td><td>Web flame graph</td></tr>
+          <tr><td>Bench + profile</td><td>go test -bench=. -cpuprofile=cpu.prof</td><td>Profile a benchmark</td></tr>
+          <tr><td>Compare benchmarks</td><td>benchstat before.txt after.txt</td><td>golang.org/x/perf/cmd/benchstat</td></tr>
+          <tr><td>Object pool</td><td>sync.Pool{New: func() any { … }}</td><td>GC may evict any time; always Reset</td></tr>
+          <tr><td>String build</td><td>strings.Builder + Grow(n)</td><td>Single allocation at String()</td></tr>
+          <tr><td>Pre-alloc slice</td><td>make([]T, 0, n)</td><td>Avoids reallocation in append loop</td></tr>
+          <tr><td>Pre-alloc map</td><td>make(map[K]V, n)</td><td>Fewer rehash events</td></tr>
+          <tr><td>Struct size</td><td>unsafe.Sizeof(T{})</td><td>Order fields largest-first to reduce padding</td></tr>
+          <tr><td>Goroutine count</td><td>runtime.NumGoroutine()</td><td>Monitor for leaks</td></tr>
+          <tr><td>Detect leaks in tests</td><td>goleak.VerifyNone(t)</td><td>go.uber.org/goleak</td></tr>
+          <tr><td>Force no inlining</td><td>//go:noinline directive</td><td>Above the function declaration</td></tr>
+          <tr><td>Alloc-free int→str</td><td>strconv.AppendInt(buf[:0], n, 10)</td><td>Appends to existing buffer</td></tr>
+          <tr><td>GC before profile</td><td>runtime.GC()</td><td>Accurate heap snapshot</td></tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
-  <nav class="toc-nav"></nav>
+
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#stack-heap">1 — Stack vs Heap</a></li>
+      <li><a href="#pprof">2 — pprof Profiling</a></li>
+      <li><a href="#allocations">3 — Reducing Allocations</a></li>
+      <li><a href="#inlining">4 — Inlining</a></li>
+      <li><a href="#goroutine-leaks">5 — Goroutine Leaks</a></li>
+      <li><a href="#memory">6 — Memory Efficiency</a></li>
+      <li><a href="#benchmarks">7 — Benchmark Output</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
 </div>
+
 </body>
 </html>

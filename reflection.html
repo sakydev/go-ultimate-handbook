@@ -5,35 +5,429 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Go Reflection — Ultimate Handbook</title>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;--accent:#0a8060;--accent2:#0969da;--accent3:#9a6700;--accent4:#cf222e;--text:#1f2328;--muted:#656d76;--tag-bg:#dafbe1;--tag-text:#1a7f37;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--font-sans:'Inter','Segoe UI',system-ui,sans-serif;--radius:12px}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;padding:0 0 80px}
-    a{color:var(--accent2);text-decoration:none}
-    .hero{background:linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%);border-bottom:1px solid var(--border);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%);pointer-events:none}
-    .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--tag-bg);color:var(--tag-text);border:1px solid #82cfaa;border-radius:100px;padding:4px 14px;margin-bottom:20px}
-    .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
-    .hero h1 span{color:var(--accent2)}
-    .hero p{font-size:1.1rem;color:var(--muted);max-width:540px;margin:0 auto}
-    .layout{display:grid;grid-template-columns:200px 1fr 220px;max-width:1300px;margin:0 auto}
-    .pkg-nav{position:sticky;top:24px;align-self:start;padding:28px 0 32px 24px;height:fit-content}
-    .home-link{display:block;font-weight:700;font-size:.88rem;color:var(--text);padding:4px 10px 18px;letter-spacing:-.01em;text-decoration:none}
-    .home-link:hover{color:var(--accent2)}
-    .nav-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px;margin-top:8px}
-    .pkg-list{list-style:none;display:flex;flex-direction:column;gap:2px}
-    .pkg-list a{display:flex;align-items:center;gap:8px;font-size:.84rem;font-family:var(--font-mono);color:var(--muted);padding:6px 10px;border-radius:7px;border:1px solid transparent;transition:all .15s;text-decoration:none}
-    .pkg-list a:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
-    .pkg-list a.active{color:var(--accent2);background:rgba(9,105,218,.07);border-color:rgba(9,105,218,.2);font-weight:600}
-    .pkg-list a .pkg-icon{font-size:.85rem;width:18px;text-align:center}
-    .content{padding:40px 32px;min-width:0;border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh}
-    .toc-nav{position:sticky;top:24px;align-self:start;padding:32px 24px 32px 0;height:fit-content}
-    .cs-icon{font-size:2.8rem;margin-bottom:16px}
-    .cs-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .cs-sub{color:var(--muted);font-size:.92rem;margin-bottom:28px}
-    .cs-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
-    .cs-topics span{font-family:var(--font-mono);font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--muted)}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.pkg-nav,.toc-nav{display:none}.content{padding:24px 16px;border:none}}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .toc-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 24px 32px 0;
+      height: fit-content;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green  { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold   { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red    { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple { background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .kw  { color: #cf222e; }
+    .fn  { color: #8250df; }
+    .str { color: #0a3069; }
+    .cmt { color: #6e7781; font-style: italic; }
+    .num { color: #0550ae; }
+    .pkg { color: #0969da; }
+    .typ { color: #953800; }
+    .out { color: #1a7f37; }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td { padding: 9px 14px; vertical-align: top; }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent3);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -41,10 +435,21 @@
 <div class="hero">
   <div class="hero-badge">Language Deep Dive</div>
   <h1>Go <span>Reflection</span></h1>
-  <p>reflect.Type, reflect.Value, struct tags, and practical use cases for reflection.</p>
+  <p>Inspect and manipulate types and values at runtime — reflect.Type, reflect.Value, struct tags, and when not to use reflection.</p>
+  <div class="hero-pills">
+    <span>reflect.TypeOf</span>
+    <span>reflect.ValueOf</span>
+    <span>Struct tags</span>
+    <span>reflect.DeepEqual</span>
+    <span>Kind</span>
+    <span>CanSet</span>
+    <span>Interface()</span>
+    <span>Pitfalls</span>
+  </div>
 </div>
 
 <div class="layout">
+
   <nav class="pkg-nav">
     <a href="index.html" class="home-link">Go Handbook</a>
     <div class="nav-group">Language</div>
@@ -76,15 +481,624 @@
   </nav>
 
   <main class="content">
-    <div class="cs-icon">🔬</div>
-    <h2 class="cs-title">Coming Soon</h2>
-    <p class="cs-sub">This page is being written. Topics that will be covered:</p>
-    <div class="cs-topics">
-      <span>reflect.Type</span><span>reflect.Value</span><span>Struct tags</span><span>reflect.DeepEqual</span><span>Use cases</span><span>Pitfalls</span>
-    </div>
+
+    <!-- ── 1. TYPE & VALUE ────────────────────────────────────────── -->
+    <section class="section" id="type-value">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔍</div>
+        <h2>reflect.Type &amp; reflect.Value</h2>
+        <span class="section-tag">TypeOf · ValueOf · Kind</span>
+      </div>
+
+      <div class="diagram">
+<pre>  Every Go value has two components in reflection:
+
+  var x float64 = 3.14
+
+  reflect.TypeOf(x)   →  reflect.Type   (describes the type: float64)
+  reflect.ValueOf(x)  →  reflect.Value  (holds the value: 3.14)
+
+  Type.Kind()  →  the underlying kind: Bool, Int, Float64, Struct, Slice, …
+  Type.Name()  →  the declared type name: "float64", "MyStruct", ""(unnamed)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">TypeOf and ValueOf basics</span>
+          <span class="card-badge badge-blue">Type / Value</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">import</span> <span class="str">"reflect"</span>
+
+<span class="kw">var</span> x <span class="typ">float64</span> = <span class="num">3.14</span>
+
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(x)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t.Name())   <span class="cmt">// float64</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t.Kind())   <span class="cmt">// float64  (same for primitives)</span>
+
+v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(x)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v.Type())   <span class="cmt">// float64</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v.Kind())   <span class="cmt">// float64</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v.<span class="fn">Float</span>())  <span class="cmt">// 3.14  (panics if not float kind)</span>
+
+<span class="cmt">// Getting the concrete value back out</span>
+<span class="kw">var</span> result <span class="typ">float64</span> = v.<span class="fn">Interface</span>().(<span class="typ">float64</span>)</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Kind vs Type</span>
+            <span class="card-badge badge-blue">Kind</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Celsius</span> <span class="typ">float64</span>
+
+<span class="kw">var</span> c <span class="typ">Celsius</span> = <span class="num">100</span>
+
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(c)
+t.<span class="fn">Name</span>()  <span class="cmt">// "Celsius"  ← declared name</span>
+t.<span class="fn">Kind</span>()  <span class="cmt">// float64   ← underlying kind</span>
+
+<span class="cmt">// Kind is useful for generic operations:</span>
+<span class="cmt">// switch on Kind to handle all int-like, all slice-like, etc.</span>
+<span class="cmt">// Type is useful for exact type identity.</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Kind switch — handle any type</span>
+            <span class="card-badge badge-blue">switch</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">func</span> <span class="fn">describe</span>(i <span class="kw">any</span>) <span class="typ">string</span> {
+    v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(i)
+    <span class="kw">switch</span> v.<span class="fn">Kind</span>() {
+    <span class="kw">case</span> <span class="pkg">reflect</span>.<span class="typ">Int</span>, <span class="pkg">reflect</span>.<span class="typ">Int64</span>:
+        <span class="kw">return</span> <span class="pkg">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"int: %d"</span>, v.<span class="fn">Int</span>())
+    <span class="kw">case</span> <span class="pkg">reflect</span>.<span class="typ">String</span>:
+        <span class="kw">return</span> <span class="pkg">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"string: %q"</span>, v.<span class="fn">String</span>())
+    <span class="kw">case</span> <span class="pkg">reflect</span>.<span class="typ">Slice</span>:
+        <span class="kw">return</span> <span class="pkg">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"slice len=%d"</span>, v.<span class="fn">Len</span>())
+    <span class="kw">default</span>:
+        <span class="kw">return</span> v.<span class="fn">Type</span>().<span class="fn">String</span>()
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. INSPECTING STRUCTS ──────────────────────────────────── -->
+    <section class="section" id="structs">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🏗️</div>
+        <h2>Inspecting Structs</h2>
+        <span class="section-tag">NumField · Field · FieldByName</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Iterating struct fields</span>
+          <span class="card-badge badge-gold">NumField</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Person</span> <span class="kw">struct</span> {
+    Name string
+    Age  <span class="typ">int</span>
+    Email <span class="typ">string</span>
+}
+
+p := <span class="typ">Person</span>{<span class="str">"Alice"</span>, <span class="num">30</span>, <span class="str">"alice@example.com"</span>}
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(p)
+v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(p)
+
+<span class="kw">for</span> i := <span class="num">0</span>; i < t.<span class="fn">NumField</span>(); i++ {
+    field := t.<span class="fn">Field</span>(i)           <span class="cmt">// reflect.StructField</span>
+    value := v.<span class="fn">Field</span>(i)           <span class="cmt">// reflect.Value</span>
+    <span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s = %v\n"</span>, field.Name, value.<span class="fn">Interface</span>())
+}
+<span class="cmt">// Name = Alice</span>
+<span class="cmt">// Age  = 30</span>
+<span class="cmt">// Email = alice@example.com</span></pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Field by name</span>
+            <span class="card-badge badge-gold">FieldByName</span>
+          </div>
+          <div class="code-wrap">
+<pre>t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(p)
+f, ok := t.<span class="fn">FieldByName</span>(<span class="str">"Age"</span>)
+<span class="kw">if</span> ok {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(f.Name)   <span class="cmt">// Age</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(f.Type)   <span class="cmt">// int</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(f.Index)  <span class="cmt">// [1]</span>
+}
+
+v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(p)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v.<span class="fn">FieldByName</span>(<span class="str">"Name"</span>))
+<span class="cmt">// Alice</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Exported vs unexported fields</span>
+            <span class="card-badge badge-gold">IsExported</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Config</span> <span class="kw">struct</span> {
+    Host    <span class="typ">string</span>  <span class="cmt">// exported</span>
+    timeout <span class="typ">int</span>     <span class="cmt">// unexported</span>
+}
+
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(<span class="typ">Config</span>{})
+<span class="kw">for</span> i := <span class="num">0</span>; i < t.<span class="fn">NumField</span>(); i++ {
+    f := t.<span class="fn">Field</span>(i)
+    <span class="kw">if</span> f.<span class="fn">IsExported</span>() {
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(f.Name, <span class="str">"is exported"</span>)
+    }
+}
+<span class="cmt">// You cannot call .Interface() on unexported fields</span>
+<span class="cmt">// — it panics. Check IsExported first.</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. STRUCT TAGS ─────────────────────────────────────────── -->
+    <section class="section" id="tags">
+      <div class="section-header">
+        <div class="section-icon icon-green">🏷️</div>
+        <h2>Struct Tags</h2>
+        <span class="section-tag">StructTag · Get · Lookup</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Struct tags are raw string literals attached to struct fields. They are invisible at runtime unless accessed via reflection. Standard packages like <code>encoding/json</code>, <code>database/sql</code>, and <code>gopkg.in/yaml.v3</code> read them to control serialization.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Reading struct tags</span>
+          <span class="card-badge badge-green">StructTag.Get</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">User</span> <span class="kw">struct</span> {
+    Name  <span class="typ">string</span> `json:<span class="str">"name"</span>             validate:<span class="str">"required,min=2"`</span>
+    Email <span class="typ">string</span> `json:<span class="str">"email,omitempty"</span>   validate:<span class="str">"required,email"`</span>
+    age   <span class="typ">int</span>    `json:<span class="str">"-"`</span>               <span class="cmt">// unexported, json ignores it</span>
+}
+
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(<span class="typ">User</span>{})
+f, _ := t.<span class="fn">FieldByName</span>(<span class="str">"Email"</span>)
+
+tag := f.Tag                        <span class="cmt">// reflect.StructTag</span>
+tag.<span class="fn">Get</span>(<span class="str">"json"</span>)                     <span class="cmt">// "email,omitempty"</span>
+tag.<span class="fn">Get</span>(<span class="str">"validate"</span>)                 <span class="cmt">// "required,email"</span>
+
+<span class="cmt">// Lookup returns (value, ok) — prefer over Get to distinguish</span>
+<span class="cmt">// missing tag from empty tag value</span>
+val, ok := tag.<span class="fn">Lookup</span>(<span class="str">"json"</span>)      <span class="cmt">// "email,omitempty", true</span>
+_, ok  = tag.<span class="fn">Lookup</span>(<span class="str">"xml"</span>)         <span class="cmt">// "", false</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Building a simple struct-to-map encoder</span>
+          <span class="card-badge badge-green">Use case</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Encode a struct to map[string]any using json tags as keys</span>
+<span class="kw">func</span> <span class="fn">structToMap</span>(v <span class="kw">any</span>) <span class="kw">map</span>[<span class="typ">string</span>]<span class="kw">any</span> {
+    out := <span class="kw">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="kw">any</span>)
+    rv := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(v)
+    rt := rv.<span class="fn">Type</span>()
+
+    <span class="kw">for</span> i := <span class="num">0</span>; i < rt.<span class="fn">NumField</span>(); i++ {
+        f := rt.<span class="fn">Field</span>(i)
+        <span class="kw">if</span> !f.<span class="fn">IsExported</span>() {
+            <span class="kw">continue</span>
+        }
+        key := f.Name
+        <span class="kw">if</span> tag, ok := f.Tag.<span class="fn">Lookup</span>(<span class="str">"json"</span>); ok && tag != <span class="str">"-"</span> {
+            key = <span class="pkg">strings</span>.<span class="fn">Split</span>(tag, <span class="str">","</span>)[<span class="num">0</span>]
+        }
+        out[key] = rv.<span class="fn">Field</span>(i).<span class="fn">Interface</span>()
+    }
+    <span class="kw">return</span> out
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. MODIFYING VALUES ────────────────────────────────────── -->
+    <section class="section" id="modifying">
+      <div class="section-header">
+        <div class="section-icon icon-red">✏️</div>
+        <h2>Modifying Values</h2>
+        <span class="section-tag">CanSet · Elem · pointer required</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>You can only set a value through reflection if it is <strong>addressable</strong>. To make a value addressable, pass a pointer to <code>reflect.ValueOf</code> and call <code>.Elem()</code> to get the pointed-at value. Calling <code>.Set()</code> on a non-addressable value panics.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Setting a struct field via reflection</span>
+          <span class="card-badge badge-red">CanSet · Set</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Config</span> <span class="kw">struct</span> {
+    Timeout <span class="typ">int</span>
+    Debug   <span class="typ">bool</span>
+}
+
+cfg := &<span class="typ">Config</span>{}
+
+<span class="cmt">// Must pass pointer and call Elem() to get addressable value</span>
+rv := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(cfg).<span class="fn">Elem</span>()
+
+rv.<span class="fn">FieldByName</span>(<span class="str">"Timeout"</span>).<span class="fn">SetInt</span>(<span class="num">30</span>)
+rv.<span class="fn">FieldByName</span>(<span class="str">"Debug"</span>).<span class="fn">SetBool</span>(<span class="kw">true</span>)
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(*cfg)  <span class="cmt">// {30 true}</span>
+
+<span class="cmt">// Check first to avoid panics on unexported or read-only fields</span>
+f := rv.<span class="fn">FieldByName</span>(<span class="str">"Timeout"</span>)
+<span class="kw">if</span> f.<span class="fn">CanSet</span>() {
+    f.<span class="fn">SetInt</span>(<span class="num">60</span>)
+}</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">New — create a value dynamically</span>
+            <span class="card-badge badge-red">reflect.New</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// reflect.New(T) allocates a *T and returns reflect.Value</span>
+t := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(<span class="typ">Config</span>{})
+ptr := <span class="pkg">reflect</span>.<span class="fn">New</span>(t)   <span class="cmt">// reflect.Value of *Config</span>
+
+ptr.<span class="fn">Elem</span>().<span class="fn">FieldByName</span>(<span class="str">"Debug"</span>).<span class="fn">SetBool</span>(<span class="kw">true</span>)
+
+<span class="cmt">// Convert back to concrete type</span>
+cfg := ptr.<span class="fn">Interface</span>().(*<span class="typ">Config</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(cfg.Debug)  <span class="cmt">// true</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Elem() — dereference pointer or interface</span>
+            <span class="card-badge badge-red">Elem</span>
+          </div>
+          <div class="code-wrap">
+<pre>x := <span class="num">42</span>
+p := &x
+
+<span class="cmt">// ValueOf(p) is a reflect.Value of kind Ptr</span>
+vp := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(p)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(vp.<span class="fn">Kind</span>())          <span class="cmt">// ptr</span>
+
+<span class="cmt">// .Elem() follows the pointer</span>
+ve := vp.<span class="fn">Elem</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ve.<span class="fn">Kind</span>())          <span class="cmt">// int</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ve.<span class="fn">CanSet</span>())        <span class="cmt">// true</span>
+ve.<span class="fn">SetInt</span>(<span class="num">99</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(x)                   <span class="cmt">// 99</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. CALLING FUNCTIONS & METHODS ─────────────────────────── -->
+    <section class="section" id="calling">
+      <div class="section-header">
+        <div class="section-icon icon-purple">📞</div>
+        <h2>Calling Functions &amp; Methods</h2>
+        <span class="section-tag">Call · MethodByName · In · Out</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Inspecting and calling a function</span>
+          <span class="card-badge badge-purple">reflect.Value.Call</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">func</span> <span class="fn">Add</span>(a, b <span class="typ">int</span>) <span class="typ">int</span> { <span class="kw">return</span> a + b }
+
+ft := <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(<span class="fn">Add</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ft.<span class="fn">NumIn</span>(), ft.<span class="fn">NumOut</span>())  <span class="cmt">// 2  1</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ft.<span class="fn">In</span>(<span class="num">0</span>))               <span class="cmt">// int</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ft.<span class="fn">Out</span>(<span class="num">0</span>))              <span class="cmt">// int</span>
+
+fv := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="fn">Add</span>)
+args := []<span class="pkg">reflect</span>.<span class="typ">Value</span>{
+    <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="num">3</span>),
+    <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="num">4</span>),
+}
+results := fv.<span class="fn">Call</span>(args)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(results[<span class="num">0</span>].<span class="fn">Int</span>())  <span class="cmt">// 7</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Calling a method by name</span>
+          <span class="card-badge badge-purple">MethodByName</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Greeter</span> <span class="kw">struct</span>{ Name <span class="typ">string</span> }
+
+<span class="kw">func</span> (g <span class="typ">Greeter</span>) <span class="fn">Hello</span>() <span class="typ">string</span> {
+    <span class="kw">return</span> <span class="str">"Hello, "</span> + g.Name
+}
+
+g := <span class="typ">Greeter</span>{Name: <span class="str">"Alice"</span>}
+v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(g)
+
+m := v.<span class="fn">MethodByName</span>(<span class="str">"Hello"</span>)
+<span class="kw">if</span> !m.<span class="fn">IsValid</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"method not found"</span>)
+    <span class="kw">return</span>
+}
+
+result := m.<span class="fn">Call</span>(<span class="kw">nil</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(result[<span class="num">0</span>].<span class="fn">String</span>())  <span class="cmt">// Hello, Alice</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. REFLECT.DEEPEQUAL ───────────────────────────────────── -->
+    <section class="section" id="deepequal">
+      <div class="section-header">
+        <div class="section-icon icon-green">⚖️</div>
+        <h2>reflect.DeepEqual</h2>
+        <span class="section-tag">equality · slices · maps · testing</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div><code>reflect.DeepEqual</code> recursively compares two values, including slices, maps, structs, and pointers. It is most useful in tests where <code>==</code> won't work (slices, maps). For production code prefer <code>cmp.Equal</code> from <code>google/go-cmp</code> — it gives better diff output.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">DeepEqual examples</span>
+            <span class="card-badge badge-green">DeepEqual</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Slices — == doesn't compile, DeepEqual works</span>
+a := []<span class="typ">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+b := []<span class="typ">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(a, b)  <span class="cmt">// true</span>
+
+<span class="cmt">// Maps</span>
+m1 := <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{<span class="str">"a"</span>: <span class="num">1</span>}
+m2 := <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{<span class="str">"a"</span>: <span class="num">1</span>}
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(m1, m2) <span class="cmt">// true</span>
+
+<span class="cmt">// nil vs empty slice — NOT equal</span>
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>([]<span class="typ">int</span>{}, (<span class="typ">[]int</span>)(<span class="kw">nil</span>))  <span class="cmt">// false!</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">DeepEqual gotchas</span>
+            <span class="card-badge badge-red">Gotchas</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Struct with unexported fields: DeepEqual CAN compare</span>
+<span class="cmt">// but cmp.Equal panics unless you configure it</span>
+
+<span class="cmt">// Function values: only equal if both nil</span>
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(<span class="fn">fmt</span>.<span class="fn">Println</span>, <span class="fn">fmt</span>.<span class="fn">Println</span>)  <span class="cmt">// false!</span>
+
+<span class="cmt">// Pointer comparison: follows pointers and compares</span>
+<span class="cmt">// pointed-at values, not the addresses</span>
+x, y := <span class="num">42</span>, <span class="num">42</span>
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(&x, &y)  <span class="cmt">// true (same value)</span>
+
+<span class="cmt">// NaN != NaN even with DeepEqual</span>
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(<span class="pkg">math</span>.<span class="typ">NaN</span>(), <span class="pkg">math</span>.<span class="typ">NaN</span>())  <span class="cmt">// false</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. PITFALLS & WHEN TO AVOID ───────────────────────────── -->
+    <section class="section" id="pitfalls">
+      <div class="section-header">
+        <div class="section-icon icon-red">🚧</div>
+        <h2>Pitfalls &amp; When to Avoid Reflection</h2>
+        <span class="section-tag">performance · panics · alternatives</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Reflection bypasses the type system — errors that the compiler would catch become runtime panics. Code using reflection is harder to read, harder to refactor, and significantly slower than direct code. Use it only when generics or interfaces won't work.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Common reflection panics</span>
+          <span class="card-badge badge-red">Panics</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// 1. Calling a type-specific extractor on the wrong kind</span>
+v := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="str">"hello"</span>)
+v.<span class="fn">Int</span>()  <span class="cmt">// panic: call of reflect.Value.Int on string Value</span>
+
+<span class="cmt">// 2. Setting a non-addressable value</span>
+v = <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="num">42</span>)   <span class="cmt">// not addressable (copy)</span>
+v.<span class="fn">SetInt</span>(<span class="num">99</span>)             <span class="cmt">// panic: reflect: reflect.Value.SetInt using value obtained using unexported field</span>
+
+<span class="cmt">// 3. Calling Interface() on unexported struct field</span>
+<span class="kw">type</span> <span class="typ">S</span> <span class="kw">struct</span>{ secret <span class="typ">int</span> }
+<span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(<span class="typ">S</span>{<span class="num">1</span>}).<span class="fn">Field</span>(<span class="num">0</span>).<span class="fn">Interface</span>()  <span class="cmt">// panic</span>
+
+<span class="cmt">// 4. Nil pointer dereference</span>
+<span class="kw">var</span> p *<span class="typ">int</span>
+<span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(p).<span class="fn">Elem</span>()  <span class="cmt">// panic: reflect: call of reflect.Value.Elem on zero Value</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">When to use reflection — and when not to</span>
+          <span class="card-badge badge-red">Guidelines</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// ✓ USE reflection for:</span>
+<span class="cmt">//   • Serialization / deserialization libraries (encoding/json, yaml)</span>
+<span class="cmt">//   • ORM / query builders (field → column mapping)</span>
+<span class="cmt">//   • Dependency injection frameworks</span>
+<span class="cmt">//   • Generic testing utilities (DeepEqual, diff)</span>
+<span class="cmt">//   • Reading struct tags to drive behaviour</span>
+
+<span class="cmt">// ✗ AVOID reflection when:</span>
+<span class="cmt">//   • You could use generics (Go 1.18+) instead</span>
+<span class="cmt">//   • You could use an interface with a defined method set</span>
+<span class="cmt">//   • Performance is critical (reflection is ~10-100x slower)</span>
+<span class="cmt">//   • You control all the types involved</span>
+
+<span class="cmt">// Rule of thumb: if the caller controls the concrete type,</span>
+<span class="cmt">// use generics. If the library doesn't know the type at</span>
+<span class="cmt">// compile time, use reflection.</span></pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Prefer generics for type-safe operations</span>
+            <span class="card-badge badge-green">Generics first</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Reflection — works but no compile-time safety</span>
+<span class="kw">func</span> <span class="fn">containsReflect</span>(slice, item <span class="kw">any</span>) <span class="typ">bool</span> {
+    sv := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(slice)
+    iv := <span class="pkg">reflect</span>.<span class="fn">ValueOf</span>(item)
+    <span class="kw">for</span> i := <span class="num">0</span>; i < sv.<span class="fn">Len</span>(); i++ {
+        <span class="kw">if</span> <span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(sv.<span class="fn">Index</span>(i).<span class="fn">Interface</span>(), iv.<span class="fn">Interface</span>()) {
+            <span class="kw">return</span> <span class="kw">true</span>
+        }
+    }
+    <span class="kw">return</span> <span class="kw">false</span>
+}
+
+<span class="cmt">// Generics — type-safe, faster, clearer</span>
+<span class="kw">func</span> <span class="fn">contains</span>[T <span class="kw">comparable</span>](slice []T, item T) <span class="typ">bool</span> {
+    <span class="kw">for</span> _, v := <span class="kw">range</span> slice {
+        <span class="kw">if</span> v == item { <span class="kw">return</span> <span class="kw">true</span> }
+    }
+    <span class="kw">return</span> <span class="kw">false</span>
+}</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Performance cost of reflection</span>
+            <span class="card-badge badge-red">Performance</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Direct field access: ~1 ns/op</span>
+cfg.Timeout = <span class="num">30</span>
+
+<span class="cmt">// Reflection field set: ~50-200 ns/op</span>
+<span class="cmt">// (type lookup, boundary checks, allocation)</span>
+rv.<span class="fn">FieldByName</span>(<span class="str">"Timeout"</span>).<span class="fn">SetInt</span>(<span class="num">30</span>)
+
+<span class="cmt">// Mitigations:</span>
+<span class="cmt">// Cache reflect.Type and field indices at init time</span>
+<span class="kw">var</span> timeoutIdx = <span class="pkg">reflect</span>.<span class="fn">TypeOf</span>(<span class="typ">Config</span>{}).<span class="fn">Field</span>(<span class="num">0</span>).Index[<span class="num">0</span>]
+
+<span class="cmt">// Use Field(i) with cached index instead of FieldByName</span>
+rv.<span class="fn">Field</span>(timeoutIdx).<span class="fn">SetInt</span>(<span class="num">30</span>)  <span class="cmt">// ~3x faster</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 99. QUICK REFERENCE ───────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">Cheat-sheet</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Call</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Get type</td><td>reflect.TypeOf(x)</td><td>Returns reflect.Type</td></tr>
+          <tr><td>Get value</td><td>reflect.ValueOf(x)</td><td>Returns reflect.Value</td></tr>
+          <tr><td>Type name</td><td>t.Name()</td><td>Declared name; "" for anonymous types</td></tr>
+          <tr><td>Underlying kind</td><td>v.Kind()</td><td>Bool, Int, Float64, Struct, Slice…</td></tr>
+          <tr><td>Extract to any</td><td>v.Interface()</td><td>Panics on unexported field</td></tr>
+          <tr><td>Number of fields</td><td>t.NumField()</td><td>Struct only</td></tr>
+          <tr><td>Field by index</td><td>t.Field(i) / v.Field(i)</td><td>Returns StructField / Value</td></tr>
+          <tr><td>Field by name</td><td>t.FieldByName("F")</td><td>Returns (StructField, bool)</td></tr>
+          <tr><td>Exported check</td><td>f.IsExported()</td><td>False for unexported fields</td></tr>
+          <tr><td>Read struct tag</td><td>f.Tag.Get("json")</td><td>Empty string if tag absent</td></tr>
+          <tr><td>Safe tag read</td><td>f.Tag.Lookup("json")</td><td>Returns (val, ok)</td></tr>
+          <tr><td>Addressable check</td><td>v.CanSet()</td><td>Requires pointer + Elem()</td></tr>
+          <tr><td>Dereference ptr</td><td>v.Elem()</td><td>Works on Ptr and Interface kinds</td></tr>
+          <tr><td>Set int field</td><td>v.SetInt(n)</td><td>Panics if not addressable</td></tr>
+          <tr><td>Set string field</td><td>v.SetString(s)</td><td>Same addressability requirement</td></tr>
+          <tr><td>Allocate new T</td><td>reflect.New(t)</td><td>Returns *T as reflect.Value</td></tr>
+          <tr><td>Slice length</td><td>v.Len()</td><td>Also works for Array, Map, String, Chan</td></tr>
+          <tr><td>Slice index</td><td>v.Index(i)</td><td>Returns element as reflect.Value</td></tr>
+          <tr><td>Map keys</td><td>v.MapKeys()</td><td>Returns []reflect.Value</td></tr>
+          <tr><td>Num in/out</td><td>t.NumIn() / t.NumOut()</td><td>Function types only</td></tr>
+          <tr><td>Call function</td><td>v.Call([]reflect.Value{…})</td><td>Returns []reflect.Value</td></tr>
+          <tr><td>Method by name</td><td>v.MethodByName("M")</td><td>Check IsValid() before Call</td></tr>
+          <tr><td>Deep equality</td><td>reflect.DeepEqual(a, b)</td><td>nil slice ≠ empty slice</td></tr>
+          <tr><td>Zero value check</td><td>v.IsZero()</td><td>True if value equals its zero value</td></tr>
+          <tr><td>Nil check</td><td>v.IsNil()</td><td>Chan, Func, Interface, Map, Ptr, Slice</td></tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
 
-  <nav class="toc-nav"></nav>
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#type-value">1 — Type &amp; Value</a></li>
+      <li><a href="#structs">2 — Inspecting Structs</a></li>
+      <li><a href="#tags">3 — Struct Tags</a></li>
+      <li><a href="#modifying">4 — Modifying Values</a></li>
+      <li><a href="#calling">5 — Functions &amp; Methods</a></li>
+      <li><a href="#deepequal">6 — DeepEqual</a></li>
+      <li><a href="#pitfalls">7 — Pitfalls &amp; When to Avoid</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
 </div>
 
 </body>

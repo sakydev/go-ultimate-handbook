@@ -5,35 +5,429 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Go File &amp; Data — Ultimate Handbook</title>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;--accent:#0a8060;--accent2:#0969da;--accent3:#9a6700;--accent4:#cf222e;--text:#1f2328;--muted:#656d76;--tag-bg:#dafbe1;--tag-text:#1a7f37;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--font-sans:'Inter','Segoe UI',system-ui,sans-serif;--radius:12px}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;padding:0 0 80px}
-    a{color:var(--accent2);text-decoration:none}
-    .hero{background:linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%);border-bottom:1px solid var(--border);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%);pointer-events:none}
-    .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--tag-bg);color:var(--tag-text);border:1px solid #82cfaa;border-radius:100px;padding:4px 14px;margin-bottom:20px}
-    .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
-    .hero h1 span{color:var(--accent2)}
-    .hero p{font-size:1.1rem;color:var(--muted);max-width:540px;margin:0 auto}
-    .layout{display:grid;grid-template-columns:200px 1fr 220px;max-width:1300px;margin:0 auto}
-    .pkg-nav{position:sticky;top:24px;align-self:start;padding:28px 0 32px 24px;height:fit-content}
-    .home-link{display:block;font-weight:700;font-size:.88rem;color:var(--text);padding:4px 10px 18px;letter-spacing:-.01em;text-decoration:none}
-    .home-link:hover{color:var(--accent2)}
-    .nav-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px;margin-top:8px}
-    .pkg-list{list-style:none;display:flex;flex-direction:column;gap:2px}
-    .pkg-list a{display:flex;align-items:center;gap:8px;font-size:.84rem;font-family:var(--font-mono);color:var(--muted);padding:6px 10px;border-radius:7px;border:1px solid transparent;transition:all .15s;text-decoration:none}
-    .pkg-list a:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
-    .pkg-list a.active{color:var(--accent2);background:rgba(9,105,218,.07);border-color:rgba(9,105,218,.2);font-weight:600}
-    .pkg-list a .pkg-icon{font-size:.85rem;width:18px;text-align:center}
-    .content{padding:40px 32px;min-width:0;border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh}
-    .toc-nav{position:sticky;top:24px;align-self:start;padding:32px 24px 32px 0;height:fit-content}
-    .cs-icon{font-size:2.8rem;margin-bottom:16px}
-    .cs-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .cs-sub{color:var(--muted);font-size:.92rem;margin-bottom:28px}
-    .cs-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
-    .cs-topics span{font-family:var(--font-mono);font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--muted)}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.pkg-nav,.toc-nav{display:none}.content{padding:24px 16px;border:none}}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .toc-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 24px 32px 0;
+      height: fit-content;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green  { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold   { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red    { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple { background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .kw  { color: #cf222e; }
+    .fn  { color: #8250df; }
+    .str { color: #0a3069; }
+    .cmt { color: #6e7781; font-style: italic; }
+    .num { color: #0550ae; }
+    .pkg { color: #0969da; }
+    .typ { color: #953800; }
+    .out { color: #1a7f37; }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td { padding: 9px 14px; vertical-align: top; }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent3);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -41,10 +435,21 @@
 <div class="hero">
   <div class="hero-badge">Language Deep Dive</div>
   <h1>Go <span>File &amp; Data</span></h1>
-  <p>Reading and writing files, JSON encoding and decoding, buffers and io streams.</p>
+  <p>Reading and writing files, streaming with io.Reader/Writer, JSON encoding, and working with paths.</p>
+  <div class="hero-pills">
+    <span>os.ReadFile</span>
+    <span>bufio.Scanner</span>
+    <span>io.Reader</span>
+    <span>io.Writer</span>
+    <span>JSON encode</span>
+    <span>JSON decode</span>
+    <span>json tags</span>
+    <span>filepath</span>
+  </div>
 </div>
 
 <div class="layout">
+
   <nav class="pkg-nav">
     <a href="index.html" class="home-link">Go Handbook</a>
     <div class="nav-group">Language</div>
@@ -76,15 +481,653 @@
   </nav>
 
   <main class="content">
-    <div class="cs-icon">📁</div>
-    <h2 class="cs-title">Coming Soon</h2>
-    <p class="cs-sub">This page is being written. Topics that will be covered:</p>
-    <div class="cs-topics">
-      <span>os.ReadFile</span><span>os.WriteFile</span><span>bufio.Scanner</span><span>JSON encode</span><span>JSON decode</span><span>json tags</span><span>io.Reader</span>
-    </div>
+
+    <!-- ── 1. READING FILES ──────────────────────────────────────── -->
+    <section class="section" id="reading">
+      <div class="section-header">
+        <div class="section-icon icon-green">📖</div>
+        <h2>Reading Files</h2>
+        <span class="section-tag">ReadFile · Open · bufio.Scanner</span>
+      </div>
+
+      <div class="diagram">
+<pre>  Choose the right read method:
+
+  Small file (fits in memory)  →  os.ReadFile — one call, whole file as []byte
+  Read line by line            →  bufio.Scanner — streams, low memory
+  Random access / large file   →  os.Open + manual Read / io.ReadAll
+  Embed at compile time        →  //go:embed directive</pre>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">os.ReadFile — whole file at once</span>
+            <span class="card-badge badge-green">ReadFile</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Reads entire file into []byte in one call</span>
+data, err := <span class="pkg">os</span>.<span class="fn">ReadFile</span>(<span class="str">"config.json"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> <span class="pkg">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"read config: %w"</span>, err)
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="typ">string</span>(data))
+
+<span class="cmt">// os.ReadFile is equivalent to:</span>
+<span class="cmt">// f, _ := os.Open(name)</span>
+<span class="cmt">// defer f.Close()</span>
+<span class="cmt">// io.ReadAll(f)</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bufio.Scanner — line by line</span>
+            <span class="card-badge badge-green">Scanner</span>
+          </div>
+          <div class="code-wrap">
+<pre>f, err := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"data.txt"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+
+scanner := <span class="pkg">bufio</span>.<span class="fn">NewScanner</span>(f)
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    line := scanner.<span class="fn">Text</span>()  <span class="cmt">// one line, no trailing \n</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(line)
+}
+<span class="kw">if</span> err := scanner.<span class="fn">Err</span>(); err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">os.Open vs os.OpenFile — open modes</span>
+          <span class="card-badge badge-green">OpenFile</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// os.Open — read-only shorthand</span>
+f, err := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"file.txt"</span>)
+
+<span class="cmt">// os.OpenFile — full control over flags and permissions</span>
+f, err = <span class="pkg">os</span>.<span class="fn">OpenFile</span>(<span class="str">"file.txt"</span>,
+    <span class="pkg">os</span>.<span class="typ">O_RDWR</span>|<span class="pkg">os</span>.<span class="typ">O_CREATE</span>|<span class="pkg">os</span>.<span class="typ">O_TRUNC</span>,
+    <span class="num">0644</span>,   <span class="cmt">// permission bits: owner rw, group r, other r</span>
+)
+
+<span class="cmt">// Common flag combinations:</span>
+<span class="cmt">// O_RDONLY                      — read-only (default for os.Open)</span>
+<span class="cmt">// O_WRONLY | O_CREATE | O_TRUNC — create/overwrite for writing</span>
+<span class="cmt">// O_WRONLY | O_CREATE | O_APPEND— open or create, append only</span>
+<span class="cmt">// O_RDWR                        — read and write</span></pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>Always <code>defer f.Close()</code> immediately after a successful open — before any other error-return path — so the file is closed even if subsequent code returns early.</div>
+      </div>
+    </section>
+
+    <!-- ── 2. WRITING FILES ──────────────────────────────────────── -->
+    <section class="section" id="writing">
+      <div class="section-header">
+        <div class="section-icon icon-blue">✍️</div>
+        <h2>Writing Files</h2>
+        <span class="section-tag">WriteFile · bufio.Writer · Fprintf</span>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">os.WriteFile — write all at once</span>
+            <span class="card-badge badge-blue">WriteFile</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Creates or overwrites the file atomically</span>
+data := []<span class="typ">byte</span>(<span class="str">"hello, file\n"</span>)
+err := <span class="pkg">os</span>.<span class="fn">WriteFile</span>(<span class="str">"out.txt"</span>, data, <span class="num">0644</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+
+<span class="cmt">// Write a string directly</span>
+err = <span class="pkg">os</span>.<span class="fn">WriteFile</span>(<span class="str">"out.txt"</span>,
+    []<span class="typ">byte</span>(<span class="str">"content"</span>), <span class="num">0644</span>)</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bufio.Writer — buffered writes</span>
+            <span class="card-badge badge-blue">bufio.Writer</span>
+          </div>
+          <div class="code-wrap">
+<pre>f, err := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"out.txt"</span>)  <span class="cmt">// create or truncate</span>
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+
+w := <span class="pkg">bufio</span>.<span class="fn">NewWriter</span>(f)
+<span class="pkg">fmt</span>.<span class="fn">Fprintln</span>(w, <span class="str">"line 1"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Fprintln</span>(w, <span class="str">"line 2"</span>)
+
+<span class="cmt">// Must flush — buffered writes are not sent until Flush()</span>
+<span class="kw">if</span> err := w.<span class="fn">Flush</span>(); err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>When using <code>bufio.Writer</code>, always call <code>Flush()</code> before closing the file. Data sitting in the buffer is silently discarded if you only call <code>Close()</code> — the file ends up truncated with no error returned.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Append to an existing file</span>
+          <span class="card-badge badge-blue">O_APPEND</span>
+        </div>
+        <div class="code-wrap">
+<pre>f, err := <span class="pkg">os</span>.<span class="fn">OpenFile</span>(<span class="str">"log.txt"</span>,
+    <span class="pkg">os</span>.<span class="typ">O_WRONLY</span>|<span class="pkg">os</span>.<span class="typ">O_CREATE</span>|<span class="pkg">os</span>.<span class="typ">O_APPEND</span>,
+    <span class="num">0644</span>,
+)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+
+<span class="pkg">fmt</span>.<span class="fn">Fprintf</span>(f, <span class="str">"[%s] event happened\n"</span>, <span class="pkg">time</span>.<span class="fn">Now</span>().<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="typ">RFC3339</span>))</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. IO.READER & IO.WRITER ──────────────────────────────── -->
+    <section class="section" id="io">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔌</div>
+        <h2>io.Reader &amp; io.Writer</h2>
+        <span class="section-tag">interfaces · Copy · Pipe · MultiWriter</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div><code>io.Reader</code> and <code>io.Writer</code> are the two most important interfaces in Go's standard library. Any type that implements <code>Read([]byte)</code> or <code>Write([]byte)</code> fits — files, network connections, bytes.Buffer, strings.Reader all compose freely.</div>
+      </div>
+
+      <div class="diagram">
+<pre>  io.Reader                          io.Writer
+  ─────────────────────────────      ─────────────────────────────
+  Read(p []byte) (n int, err error)  Write(p []byte) (n int, err error)
+
+  Implementors: *os.File, *bytes.Buffer, *strings.Reader,
+                *bufio.Reader, net.Conn, http.Request.Body, …
+
+  io.Copy(dst Writer, src Reader)  — streams src → dst without loading all in memory</pre>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">io.Copy — stream between any Reader/Writer</span>
+            <span class="card-badge badge-purple">io.Copy</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Copy a file efficiently (32KB chunks internally)</span>
+src, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"input.txt"</span>)
+<span class="kw">defer</span> src.<span class="fn">Close</span>()
+
+dst, _ := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"output.txt"</span>)
+<span class="kw">defer</span> dst.<span class="fn">Close</span>()
+
+n, err := <span class="pkg">io</span>.<span class="fn">Copy</span>(dst, src)
+<span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"copied %d bytes\n"</span>, n)
+
+<span class="cmt">// io.CopyN — copy at most N bytes</span>
+<span class="pkg">io</span>.<span class="fn">CopyN</span>(dst, src, <span class="num">1024</span>)</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bytes.Buffer &amp; strings.Reader</span>
+            <span class="card-badge badge-purple">In-memory</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// bytes.Buffer — in-memory Reader and Writer</span>
+<span class="kw">var</span> buf <span class="pkg">bytes</span>.<span class="typ">Buffer</span>
+<span class="pkg">fmt</span>.<span class="fn">Fprintf</span>(&buf, <span class="str">"hello %s"</span>, <span class="str">"world"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(buf.<span class="fn">String</span>())  <span class="cmt">// hello world</span>
+
+<span class="cmt">// strings.NewReader — turn a string into io.Reader</span>
+r := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"some data"</span>)
+<span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">os</span>.<span class="typ">Stdout</span>, r)
+
+<span class="cmt">// io.ReadAll — drain a Reader into []byte</span>
+data, err := <span class="pkg">io</span>.<span class="fn">ReadAll</span>(r)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">io.MultiWriter &amp; io.TeeReader</span>
+          <span class="card-badge badge-purple">Fan-out</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// MultiWriter — write to multiple destinations simultaneously</span>
+logFile, _ := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"app.log"</span>)
+<span class="kw">defer</span> logFile.<span class="fn">Close</span>()
+
+mw := <span class="pkg">io</span>.<span class="fn">MultiWriter</span>(<span class="pkg">os</span>.<span class="typ">Stdout</span>, logFile)
+<span class="pkg">fmt</span>.<span class="fn">Fprintln</span>(mw, <span class="str">"written to stdout and file"</span>)
+
+<span class="cmt">// TeeReader — read from src, simultaneously write to dst</span>
+<span class="cmt">// Useful for logging/inspecting data passing through a pipeline</span>
+<span class="kw">var</span> buf <span class="pkg">bytes</span>.<span class="typ">Buffer</span>
+tee := <span class="pkg">io</span>.<span class="fn">TeeReader</span>(src, &buf)  <span class="cmt">// every read from tee also writes to buf</span>
+<span class="pkg">json</span>.<span class="fn">NewDecoder</span>(tee).<span class="fn">Decode</span>(&v)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"raw payload:"</span>, buf.<span class="fn">String</span>())</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. JSON ENCODING ──────────────────────────────────────── -->
+    <section class="section" id="json-encode">
+      <div class="section-header">
+        <div class="section-icon icon-gold">📤</div>
+        <h2>JSON Encoding</h2>
+        <span class="section-tag">Marshal · Encoder · json tags</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">json tags — control serialization</span>
+          <span class="card-badge badge-gold">struct tags</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">User</span> <span class="kw">struct</span> {
+    ID        <span class="typ">int</span>    `json:<span class="str">"id"`</span>
+    Name      <span class="typ">string</span> `json:<span class="str">"name"`</span>
+    Email     <span class="typ">string</span> `json:<span class="str">"email,omitempty"`</span>  <span class="cmt">// omit if empty string</span>
+    Password  <span class="typ">string</span> `json:<span class="str">"-"`</span>               <span class="cmt">// always omit</span>
+    CreatedAt <span class="pkg">time</span>.<span class="typ">Time</span> `json:<span class="str">"created_at"`</span>
+}
+
+<span class="cmt">// omitempty omits: false, 0, nil pointer, nil slice/map, ""</span>
+<span class="cmt">// It does NOT omit a zero time.Time — use *time.Time for that</span></pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">json.Marshal — to bytes</span>
+            <span class="card-badge badge-gold">Marshal</span>
+          </div>
+          <div class="code-wrap">
+<pre>u := <span class="typ">User</span>{ID: <span class="num">1</span>, Name: <span class="str">"Alice"</span>}
+
+<span class="cmt">// Compact JSON</span>
+data, err := <span class="pkg">json</span>.<span class="fn">Marshal</span>(u)
+<span class="cmt">// {"id":1,"name":"Alice","created_at":"0001-..."}</span>
+
+<span class="cmt">// Indented JSON for human readability</span>
+data, err = <span class="pkg">json</span>.<span class="fn">MarshalIndent</span>(u, <span class="str">""</span>, <span class="str">"  "</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="typ">string</span>(data))</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">json.Encoder — stream to Writer</span>
+            <span class="card-badge badge-gold">Encoder</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Prefer Encoder when writing to http.ResponseWriter,</span>
+<span class="cmt">// os.File, or any io.Writer — avoids allocating []byte</span>
+enc := <span class="pkg">json</span>.<span class="fn">NewEncoder</span>(<span class="pkg">os</span>.<span class="typ">Stdout</span>)
+enc.<span class="fn">SetIndent</span>(<span class="str">""</span>, <span class="str">"  "</span>)
+
+users := []<span class="typ">User</span>{{ID: <span class="num">1</span>, Name: <span class="str">"Alice"</span>}}
+<span class="kw">if</span> err := enc.<span class="fn">Encode</span>(users); err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+<span class="cmt">// Encode appends a trailing newline automatically</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>Use <code>json.Encoder</code> when writing to an <code>http.ResponseWriter</code> or file. Use <code>json.Marshal</code> when you need a <code>[]byte</code> to store, sign, or pass to another function. Encoder is more memory-efficient for large payloads.</div>
+      </div>
+    </section>
+
+    <!-- ── 5. JSON DECODING ──────────────────────────────────────── -->
+    <section class="section" id="json-decode">
+      <div class="section-header">
+        <div class="section-icon icon-green">📥</div>
+        <h2>JSON Decoding</h2>
+        <span class="section-tag">Unmarshal · Decoder · unknown fields</span>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">json.Unmarshal — from bytes</span>
+            <span class="card-badge badge-green">Unmarshal</span>
+          </div>
+          <div class="code-wrap">
+<pre>payload := []<span class="typ">byte</span>(`{"id":1,"name":"Alice"}`)
+
+<span class="kw">var</span> u <span class="typ">User</span>
+<span class="kw">if</span> err := <span class="pkg">json</span>.<span class="fn">Unmarshal</span>(payload, &u); err != <span class="kw">nil</span> {
+    <span class="kw">return</span> <span class="pkg">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"decode user: %w"</span>, err)
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(u.Name)  <span class="cmt">// Alice</span>
+
+<span class="cmt">// Unmarshal unknown structure into map</span>
+<span class="kw">var</span> m <span class="kw">map</span>[<span class="typ">string</span>]<span class="kw">any</span>
+<span class="pkg">json</span>.<span class="fn">Unmarshal</span>(payload, &m)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(m[<span class="str">"name"</span>])  <span class="cmt">// Alice</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">json.Decoder — stream from Reader</span>
+            <span class="card-badge badge-green">Decoder</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Decode from an HTTP response body or file</span>
+resp, _ := <span class="pkg">http</span>.<span class="fn">Get</span>(<span class="str">"https://api.example.com/user"</span>)
+<span class="kw">defer</span> resp.Body.<span class="fn">Close</span>()
+
+<span class="kw">var</span> u <span class="typ">User</span>
+<span class="kw">if</span> err := <span class="pkg">json</span>.<span class="fn">NewDecoder</span>(resp.Body).<span class="fn">Decode</span>(&u); err != <span class="kw">nil</span> {
+    <span class="kw">return</span> err
+}
+
+<span class="cmt">// Reject unknown fields to catch typos in clients</span>
+dec := <span class="pkg">json</span>.<span class="fn">NewDecoder</span>(r.Body)
+dec.<span class="fn">DisallowUnknownFields</span>()
+dec.<span class="fn">Decode</span>(&u)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Custom MarshalJSON / UnmarshalJSON</span>
+          <span class="card-badge badge-green">Custom</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Duration</span> <span class="kw">struct</span>{ <span class="pkg">time</span>.<span class="typ">Duration</span> }
+
+<span class="cmt">// Encode as a human-readable string: "1h30m"</span>
+<span class="kw">func</span> (d <span class="typ">Duration</span>) <span class="fn">MarshalJSON</span>() ([]<span class="typ">byte</span>, <span class="typ">error</span>) {
+    <span class="kw">return</span> <span class="pkg">json</span>.<span class="fn">Marshal</span>(d.Duration.<span class="fn">String</span>())
+}
+
+<span class="cmt">// Decode from a human-readable string</span>
+<span class="kw">func</span> (d *<span class="typ">Duration</span>) <span class="fn">UnmarshalJSON</span>(b []<span class="typ">byte</span>) <span class="typ">error</span> {
+    <span class="kw">var</span> s <span class="typ">string</span>
+    <span class="kw">if</span> err := <span class="pkg">json</span>.<span class="fn">Unmarshal</span>(b, &s); err != <span class="kw">nil</span> {
+        <span class="kw">return</span> err
+    }
+    dur, err := <span class="pkg">time</span>.<span class="fn">ParseDuration</span>(s)
+    d.Duration = dur
+    <span class="kw">return</span> err
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>JSON numbers decode to <code>float64</code> by default when unmarshalling into <code>map[string]any</code>. A large integer like a database ID can lose precision. Use <code>json.Decoder</code> with <code>d.UseNumber()</code> to get a <code>json.Number</code> instead, then call <code>.Int64()</code> on it.</div>
+      </div>
+    </section>
+
+    <!-- ── 6. FILE PATHS & DIRECTORIES ──────────────────────────── -->
+    <section class="section" id="paths">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📂</div>
+        <h2>File Paths &amp; Directories</h2>
+        <span class="section-tag">filepath · os.MkdirAll · WalkDir</span>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">filepath — portable path manipulation</span>
+            <span class="card-badge badge-blue">filepath</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Join — OS-correct separator (/ on Unix, \ on Windows)</span>
+p := <span class="pkg">filepath</span>.<span class="fn">Join</span>(<span class="str">"data"</span>, <span class="str">"2024"</span>, <span class="str">"report.csv"</span>)
+<span class="cmt">// "data/2024/report.csv"</span>
+
+<span class="pkg">filepath</span>.<span class="fn">Dir</span>(p)   <span class="cmt">// "data/2024"</span>
+<span class="pkg">filepath</span>.<span class="fn">Base</span>(p)  <span class="cmt">// "report.csv"</span>
+<span class="pkg">filepath</span>.<span class="fn">Ext</span>(p)   <span class="cmt">// ".csv"</span>
+
+<span class="cmt">// Abs — resolve relative path to absolute</span>
+abs, err := <span class="pkg">filepath</span>.<span class="fn">Abs</span>(<span class="str">"./config.yaml"</span>)
+
+<span class="cmt">// Clean — normalize ../ and //</span>
+<span class="pkg">filepath</span>.<span class="fn">Clean</span>(<span class="str">"a/../b//c"</span>)  <span class="cmt">// "b/c"</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Creating &amp; removing directories</span>
+            <span class="card-badge badge-blue">MkdirAll</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Create a single directory</span>
+<span class="pkg">os</span>.<span class="fn">Mkdir</span>(<span class="str">"output"</span>, <span class="num">0755</span>)
+
+<span class="cmt">// Create all intermediate directories</span>
+<span class="pkg">os</span>.<span class="fn">MkdirAll</span>(<span class="str">"output/2024/reports"</span>, <span class="num">0755</span>)
+
+<span class="cmt">// Remove a file</span>
+<span class="pkg">os</span>.<span class="fn">Remove</span>(<span class="str">"tmp.txt"</span>)
+
+<span class="cmt">// Remove directory and all contents</span>
+<span class="pkg">os</span>.<span class="fn">RemoveAll</span>(<span class="str">"output"</span>)
+
+<span class="cmt">// Rename (also works as move)</span>
+<span class="pkg">os</span>.<span class="fn">Rename</span>(<span class="str">"old.txt"</span>, <span class="str">"new.txt"</span>)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">fs.WalkDir — traverse a directory tree</span>
+          <span class="card-badge badge-blue">WalkDir</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="pkg">filepath</span>.<span class="fn">WalkDir</span>(<span class="str">"."</span>, <span class="kw">func</span>(path <span class="typ">string</span>, d <span class="pkg">fs</span>.<span class="typ">DirEntry</span>, err <span class="typ">error</span>) <span class="typ">error</span> {
+    <span class="kw">if</span> err != <span class="kw">nil</span> {
+        <span class="kw">return</span> err  <span class="cmt">// permission error accessing this entry</span>
+    }
+    <span class="kw">if</span> d.<span class="fn">IsDir</span>() && d.<span class="fn">Name</span>() == <span class="str">".git"</span> {
+        <span class="kw">return</span> <span class="pkg">filepath</span>.<span class="typ">SkipDir</span>  <span class="cmt">// skip entire subtree</span>
+    }
+    <span class="kw">if</span> <span class="pkg">filepath</span>.<span class="fn">Ext</span>(path) == <span class="str">".go"</span> {
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(path)
+    }
+    <span class="kw">return</span> <span class="kw">nil</span>
+})
+
+<span class="cmt">// d.Type()     — FileMode (file, dir, symlink)</span>
+<span class="cmt">// d.Info()     — fs.FileInfo (size, modtime, etc.)</span>
+<span class="cmt">// d.IsDir()    — shorthand for d.Type().IsDir()</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. EMBED ──────────────────────────────────────────────── -->
+    <section class="section" id="embed">
+      <div class="section-header">
+        <div class="section-icon icon-gold">📦</div>
+        <h2>Embedding Files</h2>
+        <span class="section-tag">//go:embed · embed.FS · string · []byte</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>The <code>//go:embed</code> directive (Go 1.16+) bakes files into the binary at compile time. No runtime file reads, no deployment packaging — the binary is self-contained.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Embed as string, []byte, or embed.FS</span>
+          <span class="card-badge badge-gold">//go:embed</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">import</span> _ <span class="str">"embed"</span>  <span class="cmt">// blank import required when embedding into var</span>
+
+<span class="cmt">// Embed a single file as string</span>
+<span class="cmt">//go:embed version.txt</span>
+<span class="kw">var</span> version <span class="typ">string</span>
+
+<span class="cmt">// Embed a single file as []byte</span>
+<span class="cmt">//go:embed default_config.json</span>
+<span class="kw">var</span> defaultConfig []<span class="typ">byte</span>
+
+<span class="cmt">// Embed a whole directory (or multiple files) as embed.FS</span>
+<span class="cmt">//go:embed templates/*</span>
+<span class="kw">var</span> templates <span class="pkg">embed</span>.<span class="typ">FS</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(version)
+
+    data, _ := templates.<span class="fn">ReadFile</span>(<span class="str">"templates/index.html"</span>)
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="typ">string</span>(data))
+}</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">embed.FS — serve HTTP from binary</span>
+            <span class="card-badge badge-gold">embed.FS</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">//go:embed static/*</span>
+<span class="kw">var</span> staticFiles <span class="pkg">embed</span>.<span class="typ">FS</span>
+
+<span class="cmt">// Serve embedded files over HTTP</span>
+sub, _ := <span class="pkg">fs</span>.<span class="fn">Sub</span>(staticFiles, <span class="str">"static"</span>)
+<span class="pkg">http</span>.<span class="fn">Handle</span>(<span class="str">"/static/"</span>,
+    <span class="pkg">http</span>.<span class="fn">StripPrefix</span>(<span class="str">"/static/"</span>,
+        <span class="pkg">http</span>.<span class="fn">FileServer</span>(<span class="pkg">http</span>.<span class="fn">FS</span>(sub)),
+    ),
+)</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Glob patterns in //go:embed</span>
+            <span class="card-badge badge-gold">patterns</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Multiple files or patterns on separate lines</span>
+<span class="cmt">//go:embed migrations/*.sql</span>
+<span class="cmt">//go:embed config/defaults.yaml</span>
+<span class="kw">var</span> assets <span class="pkg">embed</span>.<span class="typ">FS</span>
+
+<span class="cmt">// List embedded files</span>
+entries, _ := assets.<span class="fn">ReadDir</span>(<span class="str">"migrations"</span>)
+<span class="kw">for</span> _, e := <span class="kw">range</span> entries {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(e.<span class="fn">Name</span>())
+}
+
+<span class="cmt">// Note: files beginning with . or _ are excluded</span>
+<span class="cmt">// unless the pattern explicitly names them.</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 99. QUICK REFERENCE ───────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">Cheat-sheet</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Call</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Read whole file</td><td>os.ReadFile(path)</td><td>Returns []byte; small files only</td></tr>
+          <tr><td>Read line by line</td><td>bufio.NewScanner(f).Scan()</td><td>Check scanner.Err() after loop</td></tr>
+          <tr><td>Open read-only</td><td>os.Open(path)</td><td>Shorthand for O_RDONLY</td></tr>
+          <tr><td>Open with flags</td><td>os.OpenFile(path, flags, perm)</td><td>O_CREATE, O_TRUNC, O_APPEND…</td></tr>
+          <tr><td>Write whole file</td><td>os.WriteFile(path, data, 0644)</td><td>Creates or overwrites</td></tr>
+          <tr><td>Create file</td><td>os.Create(path)</td><td>Equivalent to OpenFile O_WRONLY|O_CREATE|O_TRUNC</td></tr>
+          <tr><td>Buffered write</td><td>bufio.NewWriter(f)</td><td>Call Flush() before Close()</td></tr>
+          <tr><td>Stream copy</td><td>io.Copy(dst, src)</td><td>Any Reader → any Writer; 32KB chunks</td></tr>
+          <tr><td>Drain reader</td><td>io.ReadAll(r)</td><td>Returns []byte</td></tr>
+          <tr><td>In-memory buffer</td><td>bytes.Buffer</td><td>Implements both Reader and Writer</td></tr>
+          <tr><td>String as Reader</td><td>strings.NewReader(s)</td><td>Lightweight, no allocation</td></tr>
+          <tr><td>Multi-destination</td><td>io.MultiWriter(w1, w2, …)</td><td>Writes to all simultaneously</td></tr>
+          <tr><td>Tap a stream</td><td>io.TeeReader(r, w)</td><td>Reads from r and copies to w</td></tr>
+          <tr><td>Marshal to bytes</td><td>json.Marshal(v)</td><td>Returns []byte</td></tr>
+          <tr><td>Marshal to writer</td><td>json.NewEncoder(w).Encode(v)</td><td>More efficient for HTTP/file</td></tr>
+          <tr><td>Unmarshal bytes</td><td>json.Unmarshal(b, &v)</td><td>v must be a pointer</td></tr>
+          <tr><td>Decode from reader</td><td>json.NewDecoder(r).Decode(&v)</td><td>Use for HTTP bodies</td></tr>
+          <tr><td>Reject unknown fields</td><td>dec.DisallowUnknownFields()</td><td>Useful for strict APIs</td></tr>
+          <tr><td>Join path</td><td>filepath.Join(parts…)</td><td>OS-correct separator</td></tr>
+          <tr><td>Dir / Base / Ext</td><td>filepath.Dir/Base/Ext(p)</td><td>Path components</td></tr>
+          <tr><td>Walk directory</td><td>filepath.WalkDir(root, fn)</td><td>Return filepath.SkipDir to skip subtree</td></tr>
+          <tr><td>Create dirs</td><td>os.MkdirAll(path, 0755)</td><td>No error if already exists</td></tr>
+          <tr><td>Embed file (string)</td><td>//go:embed file.txt + var s string</td><td>Baked in at compile time</td></tr>
+          <tr><td>Embed dir</td><td>//go:embed dir/* + var f embed.FS</td><td>Use f.ReadFile / f.ReadDir</td></tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
 
-  <nav class="toc-nav"></nav>
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#reading">1 — Reading Files</a></li>
+      <li><a href="#writing">2 — Writing Files</a></li>
+      <li><a href="#io">3 — io.Reader &amp; io.Writer</a></li>
+      <li><a href="#json-encode">4 — JSON Encoding</a></li>
+      <li><a href="#json-decode">5 — JSON Decoding</a></li>
+      <li><a href="#paths">6 — Paths &amp; Directories</a></li>
+      <li><a href="#embed">7 — Embedding Files</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
 </div>
 
 </body>
