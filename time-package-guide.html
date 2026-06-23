@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go Time Package — Ultimate Guide</title>
+  <style>
+    /* ── Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    /* ── Layout ────────────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    /* ── Package Nav (left) ────────────────────────────────────── */
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .nav-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 10px;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon {
+      font-size: .85rem;
+      width: 18px;
+      text-align: center;
+    }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    /* ── TOC (right) ───────────────────────────────────────────── */
+    .toc-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 32px 24px 32px 0;
+      height: fit-content;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── Main Content ──────────────────────────────────────────── */
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    /* ── Section ───────────────────────────────────────────────── */
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue  { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold  { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red   { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple{ background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    /* ── Cards ─────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    /* ── Code Block ────────────────────────────────────────────── */
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    /* Syntax colours */
+    .kw  { color: #cf222e; }   /* keywords */
+    .fn  { color: #8250df; }   /* func names */
+    .str { color: #0a3069; }   /* strings */
+    .cmt { color: #6e7781; font-style: italic; } /* comments */
+    .num { color: #0550ae; }   /* numbers/consts */
+    .pkg { color: #0969da; }   /* package refs */
+    .typ { color: #953800; }   /* types */
+    .out { color: #1a7f37; }   /* output lines */
+    .op  { color: #1f2328; }   /* operators */
+
+    /* ── Output Box ────────────────────────────────────────────── */
+    .output-box {
+      margin: 0 20px 18px;
+      background: #f0f8f0;
+      border: 1px solid #c8e6c9;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .output-label {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .output-box pre {
+      font-size: .78rem;
+      color: var(--out);
+    }
+
+    /* ── Description ───────────────────────────────────────────── */
+    .desc {
+      padding: 0 20px 16px;
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Info callout ──────────────────────────────────────────── */
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    /* ── Two-col grid ──────────────────────────────────────────── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Reference table ───────────────────────────────────────── */
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td {
+      padding: 9px 14px;
+      vertical-align: top;
+    }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent3);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    /* ── Timeline visual ───────────────────────────────────────── */
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .tl-point {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tl-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .tl-dot.past { background: var(--muted); box-shadow: 0 0 0 2px var(--muted); }
+    .tl-dot.now  { background: var(--accent4); box-shadow: 0 0 0 2px var(--accent4); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 2px var(--accent4); }
+      50%       { box-shadow: 0 0 0 6px rgba(207,34,46,.2); }
+    }
+
+    .tl-label {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .tl-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--muted), var(--border));
+      min-width: 40px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ HERO -->
+<div class="hero">
+  <div class="hero-badge">Standard Library Deep Dive</div>
+  <h1>Go <span>time</span> Package</h1>
+  <p>Everything you need to work with dates, times, durations, timers, and timezones — with real examples.</p>
+  <div class="hero-pills">
+    <span>time.Time</span>
+    <span>time.Duration</span>
+    <span>time.Location</span>
+    <span>time.Timer</span>
+    <span>time.Ticker</span>
+    <span>Formatting</span>
+    <span>Parsing</span>
+    <span>Arithmetic</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: Package Nav -->
+  <nav class="pkg-nav">
+    <a href="index.html" class="home-link">Go Handbook</a>
+
+    <div class="nav-group">Language</div>
+    <ul class="pkg-list">
+      <li><a href="basics.html"><span class="pkg-icon">📖</span>Basics</a></li>
+      <li><a href="data-structures.html"><span class="pkg-icon">📦</span>Data Structures</a></li>
+      <li><a href="concurrency.html"><span class="pkg-icon">🔀</span>Concurrency</a></li>
+      <li><a href="testing.html"><span class="pkg-icon">🧪</span>Testing</a></li>
+      <li><a href="reflection.html"><span class="pkg-icon">🔬</span>Reflection</a></li>
+      <li><a href="file-data.html"><span class="pkg-icon">📁</span>File &amp; Data</a></li>
+      <li><a href="web.html"><span class="pkg-icon">🌐</span>Web</a></li>
+    </ul>
+
+    <div class="nav-group">Packages</div>
+    <ul class="pkg-list">
+      <li><a href="time-package-guide.html" class="active"><span class="pkg-icon">⏱</span>time</a></li>
+      <li><a href="strings-package-guide.html"><span class="pkg-icon">🔤</span>strings</a></li>
+      <li><a href="fmt-package-guide.html"><span class="pkg-icon">🖨</span>fmt</a></li>
+      <li><a href="errors-package-guide.html"><span class="pkg-icon">⚠️</span>errors</a></li>
+      <li><a href="sort-package-guide.html"><span class="pkg-icon">📊</span>sort</a></li>
+      <li><a href="math-package-guide.html"><span class="pkg-icon">🧮</span>math</a></li>
+      <li><a href="os-package-guide.html"><span class="pkg-icon">💻</span>os</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- ── 1. BASICS ──────────────────────────────────────── -->
+    <section class="section" id="basics">
+      <div class="section-header">
+        <div class="section-icon icon-blue">⏱</div>
+        <h2>Getting the Current Time</h2>
+        <span class="section-tag">time.Time</span>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div><code>time.Time</code> is a struct representing an instant in time with nanosecond precision. It includes wall clock, monotonic clock reading, and timezone location.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Current time — wall clock &amp; monotonic</span>
+          <span class="card-badge badge-green">Basics</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>
+    <span class="str">"time"</span>
+)
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    now := <span class="pkg">time</span>.<span class="fn">Now</span>()              <span class="cmt">// wall + monotonic</span>
+
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now)                <span class="cmt">// 2026-06-23 14:30:05.123456789 +0000 UTC m=+0.000000001</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Year</span>())         <span class="cmt">// 2026</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Month</span>())        <span class="cmt">// June</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Day</span>())          <span class="cmt">// 23</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Hour</span>())         <span class="cmt">// 0-23: 14</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Minute</span>())       <span class="cmt">// 0-59: 30</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Second</span>())       <span class="cmt">// 0-59: 5</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Nanosecond</span>())   <span class="cmt">// 0-999999999: 123456789</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Weekday</span>())      <span class="cmt">// Tuesday</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">YearDay</span>())      <span class="cmt">// 1-366: 174</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Constructing a specific time</span>
+          <span class="card-badge badge-blue">time.Date</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// time.Date(year, month, day, hour, min, sec, nsec, loc)</span>
+launch := <span class="pkg">time</span>.<span class="fn">Date</span>(<span class="num">2026</span>, <span class="pkg">time</span>.<span class="num">July</span>, <span class="num">4</span>, <span class="num">9</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="pkg">time</span>.<span class="num">UTC</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(launch)
+
+<span class="cmt">// Zero value — Jan 1, year 1, 00:00:00 UTC</span>
+<span class="kw">var</span> zero <span class="typ">time.Time</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(zero.<span class="fn">IsZero</span>()) <span class="cmt">// true</span></pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>2026-07-04 09:00:00 +0000 UTC
+true</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. FORMATTING ──────────────────────────────────── -->
+    <section class="section" id="formatting">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🖋</div>
+        <h2>Formatting &amp; Parsing</h2>
+        <span class="section-tag">Reference Time</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Go uses a <strong>reference time</strong> as the format template — <code>Mon Jan 2 15:04:05 MST 2006</code>. This is not a placeholder; use these exact values to define your layout.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Format — custom layouts</span>
+          <span class="card-badge badge-gold">Format()</span>
+        </div>
+        <div class="code-wrap">
+<pre>now := <span class="pkg">time</span>.<span class="fn">Now</span>()
+
+<span class="cmt">// Common patterns</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="str">"2006-01-02"</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="str">"02/01/2006"</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="str">"Jan 2, 2006"</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="str">"3:04 PM"</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="str">"Mon, 02 Jan 2006 15:04:05 -0700"</span>))
+
+<span class="cmt">// Pre-defined layouts in the time package</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="num">RFC3339</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="num">RFC822</span>))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="num">Kitchen</span>))</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>2026-06-23
+23/06/2026
+Jun 23, 2026
+2:30 PM
+Tue, 23 Jun 2026 14:30:05 +0000
+2026-06-23T14:30:05Z
+23 Jun 26 14:30 UTC
+2:30PM</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Parsing — string → time.Time</span>
+          <span class="card-badge badge-gold">time.Parse</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// time.Parse(layout, value) — always UTC</span>
+t1, err := <span class="pkg">time</span>.<span class="fn">Parse</span>(<span class="str">"2006-01-02"</span>, <span class="str">"2026-06-23"</span>)
+<span class="kw">if</span> err != nil {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"error:"</span>, err)
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t1)
+
+<span class="cmt">// time.ParseInLocation — respects local timezone</span>
+loc, _ := <span class="pkg">time</span>.<span class="fn">LoadLocation</span>(<span class="str">"America/New_York"</span>)
+t2, _ := <span class="pkg">time</span>.<span class="fn">ParseInLocation</span>(<span class="str">"2006-01-02 15:04:05"</span>, <span class="str">"2026-06-23 09:00:00"</span>, loc)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t2)
+
+<span class="cmt">// RFC3339 is the most portable internet format</span>
+t3, _ := <span class="pkg">time</span>.<span class="fn">Parse</span>(<span class="pkg">time</span>.<span class="num">RFC3339</span>, <span class="str">"2026-06-23T14:30:05Z"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t3.<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="num">RFC3339</span>))</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>2026-06-23 00:00:00 +0000 UTC
+2026-06-23 09:00:00 -0400 EDT
+2026-06-23T14:30:05Z</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. DURATION ────────────────────────────────────── -->
+    <section class="section" id="duration">
+      <div class="section-header">
+        <div class="section-icon icon-green">⏳</div>
+        <h2>Durations</h2>
+        <span class="section-tag">time.Duration</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div><code>time.Duration</code> is an <code>int64</code> representing nanoseconds. All duration constants — <code>time.Second</code>, <code>time.Minute</code>, etc. — are just multiples of <code>time.Nanosecond</code>.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Duration constants</span>
+            <span class="card-badge badge-green">Literals</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">var</span> (
+    ns  = <span class="pkg">time</span>.<span class="num">Nanosecond</span>   <span class="cmt">// 1</span>
+    us  = <span class="pkg">time</span>.<span class="num">Microsecond</span>  <span class="cmt">// 1000</span>
+    ms  = <span class="pkg">time</span>.<span class="num">Millisecond</span>  <span class="cmt">// 1_000_000</span>
+    s   = <span class="pkg">time</span>.<span class="num">Second</span>       <span class="cmt">// 1e9</span>
+    m   = <span class="pkg">time</span>.<span class="num">Minute</span>       <span class="cmt">// 60e9</span>
+    h   = <span class="pkg">time</span>.<span class="num">Hour</span>         <span class="cmt">// 3600e9</span>
+)
+
+d := <span class="num">2</span>*<span class="pkg">time</span>.<span class="num">Hour</span> + <span class="num">30</span>*<span class="pkg">time</span>.<span class="num">Minute</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d) <span class="cmt">// 2h30m0s</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Duration from string</span>
+            <span class="card-badge badge-green">ParseDuration</span>
+          </div>
+          <div class="code-wrap">
+<pre>d, _ := <span class="pkg">time</span>.<span class="fn">ParseDuration</span>(<span class="str">"1h30m"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d) <span class="cmt">// 1h30m0s</span>
+
+d2, _ := <span class="pkg">time</span>.<span class="fn">ParseDuration</span>(<span class="str">"300ms"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d2) <span class="cmt">// 300ms</span>
+
+d3, _ := <span class="pkg">time</span>.<span class="fn">ParseDuration</span>(<span class="str">"2h45m30s"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d3.<span class="fn">Hours</span>())   <span class="cmt">// 2.758...</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d3.<span class="fn">Minutes</span>()) <span class="cmt">// 165.5</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d3.<span class="fn">Seconds</span>()) <span class="cmt">// 9930</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Truncate &amp; Round a duration</span>
+          <span class="card-badge badge-purple">Precision</span>
+        </div>
+        <div class="code-wrap">
+<pre>d := <span class="num">17</span>*<span class="pkg">time</span>.<span class="num">Minute</span> + <span class="num">45</span>*<span class="pkg">time</span>.<span class="num">Second</span>
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d.<span class="fn">Truncate</span>(<span class="pkg">time</span>.<span class="num">Minute</span>)) <span class="cmt">// 17m0s  (floor)</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(d.<span class="fn">Round</span>(<span class="pkg">time</span>.<span class="num">Minute</span>))    <span class="cmt">// 18m0s  (nearest)</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. ARITHMETIC ──────────────────────────────────── -->
+    <section class="section" id="arithmetic">
+      <div class="section-header">
+        <div class="section-icon icon-purple">➕</div>
+        <h2>Time Arithmetic</h2>
+        <span class="section-tag">Add · Sub · Since · Until</span>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-point">
+          <div class="tl-dot past"></div>
+          <div class="tl-label">past<br>t1</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-point">
+          <div class="tl-dot now"></div>
+          <div class="tl-label">now<br>t2</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-point">
+          <div class="tl-dot"></div>
+          <div class="tl-label">future<br>t3</div>
+        </div>
+        <div style="margin-left:24px; font-size:.78rem; color:var(--muted); flex-shrink:0; margin-bottom:20px;">
+          <div style="margin-bottom:4px;"><span style="color:var(--accent4)">Since(t1)</span> = now − t1 ▶ Duration</div>
+          <div style="margin-bottom:4px;"><span style="color:var(--accent)">Until(t3)</span> = t3 − now ▶ Duration</div>
+          <div><span style="color:var(--accent2)">Sub(t1)</span> = t2 − t1 ▶ Duration</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Add, Sub, Since, Until</span>
+          <span class="card-badge badge-purple">Arithmetic</span>
+        </div>
+        <div class="code-wrap">
+<pre>now := <span class="pkg">time</span>.<span class="fn">Now</span>()
+
+<span class="cmt">// Add a duration to a time</span>
+tomorrow  := now.<span class="fn">Add</span>(<span class="num">24</span> * <span class="pkg">time</span>.<span class="num">Hour</span>)
+nextWeek  := now.<span class="fn">Add</span>(<span class="num">7</span> * <span class="num">24</span> * <span class="pkg">time</span>.<span class="num">Hour</span>)
+yesterday := now.<span class="fn">Add</span>(-<span class="num">24</span> * <span class="pkg">time</span>.<span class="num">Hour</span>)
+
+<span class="cmt">// AddDate(years, months, days) — calendar-aware</span>
+nextMonth := now.<span class="fn">AddDate</span>(<span class="num">0</span>, <span class="num">1</span>, <span class="num">0</span>)
+nextYear  := now.<span class="fn">AddDate</span>(<span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>)
+
+<span class="cmt">// Sub: time.Time − time.Time → time.Duration</span>
+elapsed := now.<span class="fn">Sub</span>(yesterday)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(elapsed) <span class="cmt">// 24h0m0s</span>
+
+<span class="cmt">// Since / Until — shortcuts using time.Now()</span>
+start := <span class="pkg">time</span>.<span class="fn">Now</span>()
+<span class="cmt">// ... do work ...</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="pkg">time</span>.<span class="fn">Since</span>(start)) <span class="cmt">// elapsed since start</span>
+
+deadline := now.<span class="fn">Add</span>(<span class="num">5</span> * <span class="pkg">time</span>.<span class="num">Minute</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="pkg">time</span>.<span class="fn">Until</span>(deadline)) <span class="cmt">// time remaining</span></pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>24h0m0s
+4m59.999872042s</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Benchmarking execution time</span>
+          <span class="card-badge badge-blue">Pattern</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">func</span> <span class="fn">benchmark</span>(name <span class="typ">string</span>, fn <span class="kw">func</span>()) {
+    start := <span class="pkg">time</span>.<span class="fn">Now</span>()
+    <span class="fn">fn</span>()
+    elapsed := <span class="pkg">time</span>.<span class="fn">Since</span>(start)
+    <span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s took %v\n"</span>, name, elapsed)
+}
+
+<span class="fn">benchmark</span>(<span class="str">"heavy task"</span>, <span class="kw">func</span>() {
+    <span class="pkg">time</span>.<span class="fn">Sleep</span>(<span class="num">50</span> * <span class="pkg">time</span>.<span class="num">Millisecond</span>)
+})</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>heavy task took 50.123456ms</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. COMPARISON ──────────────────────────────────── -->
+    <section class="section" id="comparison">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔍</div>
+        <h2>Comparing Times</h2>
+        <span class="section-tag">Before · After · Equal</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Never use <code>==</code> to compare <code>time.Time</code> values — it also compares the monotonic clock and location pointer. Use <code>.Equal()</code> for semantic equality.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Before, After, Equal</span>
+          <span class="card-badge badge-blue">Comparison</span>
+        </div>
+        <div class="code-wrap">
+<pre>t1 := <span class="pkg">time</span>.<span class="fn">Date</span>(<span class="num">2026</span>, <span class="pkg">time</span>.<span class="num">January</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="pkg">time</span>.<span class="num">UTC</span>)
+t2 := <span class="pkg">time</span>.<span class="fn">Date</span>(<span class="num">2026</span>, <span class="pkg">time</span>.<span class="num">June</span>, <span class="num">23</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="pkg">time</span>.<span class="num">UTC</span>)
+t3 := t1
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t1.<span class="fn">Before</span>(t2)) <span class="cmt">// true  — t1 is earlier</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t2.<span class="fn">After</span>(t1))  <span class="cmt">// true  — t2 is later</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t1.<span class="fn">Equal</span>(t3))  <span class="cmt">// true  — same instant</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(t1 == t3)       <span class="cmt">// may be false! don't use ==</span>
+
+<span class="cmt">// Clamp: check if time is within a range</span>
+<span class="kw">func</span> <span class="fn">inRange</span>(t, lo, hi <span class="typ">time.Time</span>) <span class="typ">bool</span> {
+    <span class="kw">return</span> !t.<span class="fn">Before</span>(lo) && !t.<span class="fn">After</span>(hi)
+}</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>true
+true
+true
+true</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. TIMEZONE ────────────────────────────────────── -->
+    <section class="section" id="timezone">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🌍</div>
+        <h2>Timezones</h2>
+        <span class="section-tag">time.Location</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Loading and converting locations</span>
+          <span class="card-badge badge-gold">Timezones</span>
+        </div>
+        <div class="code-wrap">
+<pre>now := <span class="pkg">time</span>.<span class="fn">Now</span>().<span class="fn">UTC</span>() <span class="cmt">// start in UTC</span>
+
+<span class="cmt">// Load IANA timezone (requires tzdata on system or embed)</span>
+ny, _  := <span class="pkg">time</span>.<span class="fn">LoadLocation</span>(<span class="str">"America/New_York"</span>)
+lon, _ := <span class="pkg">time</span>.<span class="fn">LoadLocation</span>(<span class="str">"Europe/London"</span>)
+tok, _ := <span class="pkg">time</span>.<span class="fn">LoadLocation</span>(<span class="str">"Asia/Tokyo"</span>)
+
+<span class="cmt">// Convert — same instant, different display</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">In</span>(ny))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">In</span>(lon))
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">In</span>(tok))
+
+<span class="cmt">// Fixed offset (when IANA name is unknown)</span>
+ist := <span class="pkg">time</span>.<span class="fn">FixedZone</span>(<span class="str">"IST"</span>, <span class="num">5</span>*<span class="num">3600</span>+<span class="num">30</span>*<span class="num">60</span>) <span class="cmt">// +05:30</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">In</span>(ist))
+
+<span class="cmt">// Get timezone name + offset</span>
+name, offset := now.<span class="fn">In</span>(ny).<span class="fn">Zone</span>()
+<span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s  offset=%d\n"</span>, name, offset)</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>2026-06-23 10:30:05 -0400 EDT
+2026-06-23 15:30:05 +0100 BST
+2026-06-24 00:30:05 +0900 JST
+2026-06-23 21:00:05 +0530 IST
+EDT  offset=-14400</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Embed tzdata (no system dependency)</span>
+          <span class="card-badge badge-red">Production tip</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// In any .go file (often main.go or a dedicated tz.go)</span>
+<span class="kw">import</span> _ <span class="str">"time/tzdata"</span>
+
+<span class="cmt">// This embeds the full IANA timezone database into your binary,
+// so LoadLocation works even in scratch containers with no /usr/share/zoneinfo</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. UNIX ─────────────────────────────────────────── -->
+    <section class="section" id="unix">
+      <div class="section-header">
+        <div class="section-icon icon-red">🔢</div>
+        <h2>Unix Timestamps</h2>
+        <span class="section-tag">Unix · UnixMilli · UnixNano</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Converting to/from Unix time</span>
+          <span class="card-badge badge-red">Interop</span>
+        </div>
+        <div class="code-wrap">
+<pre>now := <span class="pkg">time</span>.<span class="fn">Now</span>()
+
+<span class="cmt">// time.Time → Unix timestamp</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Unix</span>())      <span class="cmt">// seconds since epoch</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">UnixMilli</span>()) <span class="cmt">// milliseconds</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">UnixMicro</span>()) <span class="cmt">// microseconds</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">UnixNano</span>())  <span class="cmt">// nanoseconds</span>
+
+<span class="cmt">// Unix timestamp → time.Time</span>
+ts := <span class="pkg">time</span>.<span class="fn">Unix</span>(<span class="num">1750000000</span>, <span class="num">0</span>)  <span class="cmt">// (sec, nsec)</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(ts)
+
+tsMs := <span class="pkg">time</span>.<span class="fn">UnixMilli</span>(<span class="num">1750000000000</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(tsMs)
+
+<span class="cmt">// JSON marshaling uses RFC3339 by default</span>
+<span class="kw">type</span> <span class="typ">Event</span> <span class="kw">struct</span> {
+    At <span class="typ">time.Time</span> <span class="str">`json:"at"`</span>
+}</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>1750686605
+1750686605123
+1750686605123456
+1750686605123456789
+2025-06-15 14:13:20 +0000 UTC
+2025-06-15 14:13:20 +0000 UTC</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 8. SLEEP ───────────────────────────────────────── -->
+    <section class="section" id="sleep">
+      <div class="section-header">
+        <div class="section-icon icon-green">😴</div>
+        <h2>Sleep &amp; Timing</h2>
+        <span class="section-tag">time.Sleep</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">time.Sleep — pause execution</span>
+          <span class="card-badge badge-green">Sleep</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Pause the current goroutine</span>
+<span class="pkg">time</span>.<span class="fn">Sleep</span>(<span class="num">500</span> * <span class="pkg">time</span>.<span class="num">Millisecond</span>)
+<span class="pkg">time</span>.<span class="fn">Sleep</span>(<span class="num">2</span> * <span class="pkg">time</span>.<span class="num">Second</span>)
+<span class="pkg">time</span>.<span class="fn">Sleep</span>(<span class="num">1</span> * <span class="pkg">time</span>.<span class="num">Minute</span>)
+
+<span class="cmt">// Context-aware sleep (can be cancelled)</span>
+<span class="kw">func</span> <span class="fn">sleepCtx</span>(ctx <span class="typ">context.Context</span>, d <span class="typ">time.Duration</span>) <span class="typ">error</span> {
+    select {
+    <span class="kw">case</span> &lt;-<span class="pkg">time</span>.<span class="fn">After</span>(d):
+        <span class="kw">return</span> nil
+    <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+        <span class="kw">return</span> ctx.<span class="fn">Err</span>()
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. TIMER ───────────────────────────────────────── -->
+    <section class="section" id="timer">
+      <div class="section-header">
+        <div class="section-icon icon-red">⏰</div>
+        <h2>Timers</h2>
+        <span class="section-tag">time.Timer</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>A <code>Timer</code> fires <strong>once</strong> after the duration. Always stop a timer you no longer need to free resources, and drain its channel when resetting.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">One-shot timer</span>
+          <span class="card-badge badge-red">time.NewTimer</span>
+        </div>
+        <div class="code-wrap">
+<pre>timer := <span class="pkg">time</span>.<span class="fn">NewTimer</span>(<span class="num">2</span> * <span class="pkg">time</span>.<span class="num">Second</span>)
+<span class="kw">defer</span> timer.<span class="fn">Stop</span>() <span class="cmt">// always clean up</span>
+
+select {
+<span class="kw">case</span> t := &lt;-timer.C:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"Timer fired at"</span>, t)
+<span class="kw">case</span> &lt;-<span class="pkg">time</span>.<span class="fn">After</span>(<span class="num">1</span> * <span class="pkg">time</span>.<span class="num">Second</span>):
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"Timed out waiting for timer"</span>)
+}
+
+<span class="cmt">// time.AfterFunc — callback in new goroutine</span>
+<span class="pkg">time</span>.<span class="fn">AfterFunc</span>(<span class="num">500</span>*<span class="pkg">time</span>.<span class="num">Millisecond</span>, <span class="kw">func</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"callback fired"</span>)
+})</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Resetting a timer safely</span>
+          <span class="card-badge badge-blue">Pattern</span>
+        </div>
+        <div class="code-wrap">
+<pre>timer := <span class="pkg">time</span>.<span class="fn">NewTimer</span>(<span class="num">5</span> * <span class="pkg">time</span>.<span class="num">Second</span>)
+
+<span class="cmt">// Safe reset pattern</span>
+<span class="kw">if</span> !timer.<span class="fn">Stop</span>() {
+    <span class="kw">select</span> {
+    <span class="kw">case</span> &lt;-timer.C: <span class="cmt">// drain if already fired</span>
+    <span class="kw">default</span>:
+    }
+}
+timer.<span class="fn">Reset</span>(<span class="num">10</span> * <span class="pkg">time</span>.<span class="num">Second</span>)</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 10. TICKER ─────────────────────────────────────── -->
+    <section class="section" id="ticker">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔁</div>
+        <h2>Tickers</h2>
+        <span class="section-tag">time.Ticker</span>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <div>A <code>Ticker</code> fires <strong>repeatedly</strong> at a fixed interval. Always call <code>ticker.Stop()</code> when done — unlike a channel close, it won't stop on its own.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Periodic work with a Ticker</span>
+          <span class="card-badge badge-purple">time.NewTicker</span>
+        </div>
+        <div class="code-wrap">
+<pre>ticker := <span class="pkg">time</span>.<span class="fn">NewTicker</span>(<span class="num">1</span> * <span class="pkg">time</span>.<span class="num">Second</span>)
+done   := <span class="kw">make</span>(<span class="kw">chan</span> <span class="typ">struct</span>{})
+
+<span class="kw">go func</span>() {
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> &lt;-done:
+            <span class="kw">return</span>
+        <span class="kw">case</span> t := &lt;-ticker.C:
+            <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"tick at"</span>, t.<span class="fn">Format</span>(<span class="pkg">time</span>.<span class="num">Kitchen</span>))
+        }
+    }
+}()
+
+<span class="pkg">time</span>.<span class="fn">Sleep</span>(<span class="num">5</span> * <span class="pkg">time</span>.<span class="num">Second</span>)
+ticker.<span class="fn">Stop</span>()
+<span class="kw">close</span>(done)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"ticker stopped"</span>)</pre>
+        </div>
+        <div class="output-box">
+          <div class="output-label">Output</div>
+<pre>tick at 2:30PM
+tick at 2:30PM
+tick at 2:30PM
+tick at 2:30PM
+tick at 2:30PM
+ticker stopped</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Heartbeat / retry with ticker + context</span>
+          <span class="card-badge badge-blue">Real-world pattern</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">func</span> <span class="fn">pollUntilDone</span>(ctx <span class="typ">context.Context</span>, interval <span class="typ">time.Duration</span>) {
+    ticker := <span class="pkg">time</span>.<span class="fn">NewTicker</span>(interval)
+    <span class="kw">defer</span> ticker.<span class="fn">Stop</span>()
+
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+            <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"context cancelled, stopping poll"</span>)
+            <span class="kw">return</span>
+        <span class="kw">case</span> &lt;-ticker.C:
+            <span class="kw">if</span> <span class="fn">checkHealth</span>() {
+                <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"healthy!"</span>)
+                <span class="kw">return</span>
+            }
+            <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"still waiting..."</span>)
+        }
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── REFERENCE ──────────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">All key functions</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Function / Method</th>
+            <th>Returns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>time.Now()</td><td>time.Time</td><td>Current local time (wall + monotonic)</td></tr>
+          <tr><td>time.Date(y,m,d,h,min,s,ns,loc)</td><td>time.Time</td><td>Construct a specific time</td></tr>
+          <tr><td>t.Format(layout)</td><td>string</td><td>Format time using reference layout</td></tr>
+          <tr><td>time.Parse(layout, s)</td><td>time.Time, error</td><td>Parse a string into time.Time</td></tr>
+          <tr><td>time.ParseInLocation(layout, s, loc)</td><td>time.Time, error</td><td>Parse respecting a timezone</td></tr>
+          <tr><td>t.Add(d)</td><td>time.Time</td><td>Add a duration to a time</td></tr>
+          <tr><td>t.AddDate(y,m,d)</td><td>time.Time</td><td>Calendar-aware date arithmetic</td></tr>
+          <tr><td>t.Sub(u)</td><td>time.Duration</td><td>Difference between two times</td></tr>
+          <tr><td>time.Since(t)</td><td>time.Duration</td><td>Elapsed time since t</td></tr>
+          <tr><td>time.Until(t)</td><td>time.Duration</td><td>Time remaining until t</td></tr>
+          <tr><td>t.Before(u)</td><td>bool</td><td>t is earlier than u</td></tr>
+          <tr><td>t.After(u)</td><td>bool</td><td>t is later than u</td></tr>
+          <tr><td>t.Equal(u)</td><td>bool</td><td>Same instant (timezone-agnostic)</td></tr>
+          <tr><td>t.In(loc)</td><td>time.Time</td><td>Convert time to different timezone</td></tr>
+          <tr><td>t.UTC()</td><td>time.Time</td><td>Convert to UTC</td></tr>
+          <tr><td>t.Local()</td><td>time.Time</td><td>Convert to local time</td></tr>
+          <tr><td>t.Unix()</td><td>int64</td><td>Seconds since Unix epoch</td></tr>
+          <tr><td>t.UnixMilli()</td><td>int64</td><td>Milliseconds since Unix epoch</td></tr>
+          <tr><td>t.UnixNano()</td><td>int64</td><td>Nanoseconds since Unix epoch</td></tr>
+          <tr><td>time.Unix(sec, nsec)</td><td>time.Time</td><td>time.Time from Unix timestamp</td></tr>
+          <tr><td>t.Truncate(d)</td><td>time.Time</td><td>Truncate to multiple of d</td></tr>
+          <tr><td>t.Round(d)</td><td>time.Time</td><td>Round to nearest multiple of d</td></tr>
+          <tr><td>t.IsZero()</td><td>bool</td><td>Is this the zero time?</td></tr>
+          <tr><td>t.Zone()</td><td>string, int</td><td>Timezone name and offset</td></tr>
+          <tr><td>time.Sleep(d)</td><td>—</td><td>Pause goroutine for d</td></tr>
+          <tr><td>time.After(d)</td><td>&lt;-chan time.Time</td><td>Channel that sends after d</td></tr>
+          <tr><td>time.NewTimer(d)</td><td>*time.Timer</td><td>One-shot timer</td></tr>
+          <tr><td>time.AfterFunc(d, f)</td><td>*time.Timer</td><td>Call f in goroutine after d</td></tr>
+          <tr><td>time.NewTicker(d)</td><td>*time.Ticker</td><td>Repeating ticker every d</td></tr>
+          <tr><td>time.ParseDuration(s)</td><td>time.Duration, error</td><td>Parse "1h30m" → Duration</td></tr>
+          <tr><td>time.LoadLocation(name)</td><td>*time.Location, error</td><td>Load IANA timezone</td></tr>
+          <tr><td>time.FixedZone(name, offset)</td><td>*time.Location</td><td>Fixed UTC offset location</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- RIGHT: Section TOC -->
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#basics">1 — Getting the Current Time</a></li>
+      <li><a href="#formatting">2 — Formatting &amp; Parsing</a></li>
+      <li><a href="#duration">3 — Durations</a></li>
+      <li><a href="#arithmetic">4 — Time Arithmetic</a></li>
+      <li><a href="#comparison">5 — Comparing Times</a></li>
+      <li><a href="#timezone">6 — Timezones</a></li>
+      <li><a href="#unix">7 — Unix Timestamps</a></li>
+      <li><a href="#sleep">8 — Sleep &amp; Timing</a></li>
+      <li><a href="#timer">9 — Timers</a></li>
+      <li><a href="#ticker">10 — Tickers</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+</body>
+</html>

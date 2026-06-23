@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go Ultimate Handbook</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    /* ── Layout ────────────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    /* ── Package Nav (left) ────────────────────────────────────── */
+    .pkg-nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 28px 0 32px 24px;
+      height: fit-content;
+    }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); }
+    .home-link.active { color: var(--accent2); }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .84rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    /* ── Main Content ──────────────────────────────────────────── */
+    .content {
+      padding: 40px 40px 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+    }
+
+    /* ── Home sections ─────────────────────────────────────────── */
+    .home-section { margin-bottom: 52px; }
+
+    .home-section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .home-section-header h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .home-section-header span {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* ── Topic cards ───────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .topic-card {
+      display: flex;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-decoration: none;
+      transition: border-color .15s, box-shadow .15s;
+      position: relative;
+    }
+
+    .topic-card:hover {
+      border-color: #adbac7;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      text-decoration: none;
+    }
+
+    .topic-card.soon { opacity: .7; }
+    .topic-card.soon:hover { opacity: .85; }
+
+    .tc-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      background: var(--surface2);
+      border-radius: 8px;
+      margin-top: 1px;
+    }
+
+    .tc-body { flex: 1; min-width: 0; }
+
+    .tc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .tc-title {
+      font-size: .92rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+
+    .tc-badge {
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+    }
+
+    .tc-badge.ready {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+    }
+
+    .tc-badge.soon {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .tc-desc {
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .tc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tc-tags span {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 7px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ HERO -->
+<div class="hero">
+  <div class="hero-badge">Interview Prep · Reference Guide</div>
+  <h1>Go <span>Ultimate</span> Handbook</h1>
+  <p>A practical reference for the Go programming language — built for interview prep and everyday use.</p>
+  <div class="hero-pills">
+    <span>7 language topics</span>
+    <span>7 packages</span>
+    <span>Open source</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: Package Nav -->
+  <nav class="pkg-nav">
+    <a href="index.html" class="home-link active">Go Handbook</a>
+
+    <div class="nav-group">Language</div>
+    <ul class="pkg-list">
+      <li><a href="basics.html"><span class="pkg-icon">📖</span>Basics</a></li>
+      <li><a href="data-structures.html"><span class="pkg-icon">📦</span>Data Structures</a></li>
+      <li><a href="concurrency.html"><span class="pkg-icon">🔀</span>Concurrency</a></li>
+      <li><a href="testing.html"><span class="pkg-icon">🧪</span>Testing</a></li>
+      <li><a href="reflection.html"><span class="pkg-icon">🔬</span>Reflection</a></li>
+      <li><a href="file-data.html"><span class="pkg-icon">📁</span>File &amp; Data</a></li>
+      <li><a href="web.html"><span class="pkg-icon">🌐</span>Web</a></li>
+    </ul>
+
+    <div class="nav-group">Packages</div>
+    <ul class="pkg-list">
+      <li><a href="time-package-guide.html"><span class="pkg-icon">⏱</span>time</a></li>
+      <li><a href="strings-package-guide.html"><span class="pkg-icon">🔤</span>strings</a></li>
+      <li><a href="fmt-package-guide.html"><span class="pkg-icon">🖨</span>fmt</a></li>
+      <li><a href="errors-package-guide.html"><span class="pkg-icon">⚠️</span>errors</a></li>
+      <li><a href="sort-package-guide.html"><span class="pkg-icon">📊</span>sort</a></li>
+      <li><a href="math-package-guide.html"><span class="pkg-icon">🧮</span>math</a></li>
+      <li><a href="os-package-guide.html"><span class="pkg-icon">💻</span>os</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- Language -->
+    <div class="home-section">
+      <div class="home-section-header">
+        <h2>Language</h2>
+        <span>Core Go concepts and patterns</span>
+      </div>
+      <div class="card-grid">
+
+        <a href="basics.html" class="topic-card soon">
+          <div class="tc-icon">📖</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Basics</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Variables, constants, pointers, loops, functions, closures, defer, and error handling.</p>
+            <div class="tc-tags">
+              <span>Variables</span><span>Pointers</span><span>Closures</span><span>Errors</span><span>Defer</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="data-structures.html" class="topic-card soon">
+          <div class="tc-icon">📦</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Data Structures</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Structs, embedding, slices, maps, interfaces, type assertions, and generics.</p>
+            <div class="tc-tags">
+              <span>Structs</span><span>Slices</span><span>Maps</span><span>Interfaces</span><span>Generics</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="concurrency.html" class="topic-card soon">
+          <div class="tc-icon">🔀</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Concurrency</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Goroutines, channels, select, WaitGroup, Mutex, sync.Once, atomic, and context.</p>
+            <div class="tc-tags">
+              <span>Goroutines</span><span>Channels</span><span>Select</span><span>Context</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="testing.html" class="topic-card soon">
+          <div class="tc-icon">🧪</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Testing</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Table-driven tests, benchmarks, test helpers, setup and teardown patterns.</p>
+            <div class="tc-tags">
+              <span>Table tests</span><span>Benchmarks</span><span>Helpers</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="reflection.html" class="topic-card soon">
+          <div class="tc-icon">🔬</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Reflection</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">reflect.Type, reflect.Value, struct tags, and practical use cases for reflection.</p>
+            <div class="tc-tags">
+              <span>reflect.Type</span><span>reflect.Value</span><span>Struct tags</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="file-data.html" class="topic-card soon">
+          <div class="tc-icon">📁</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">File &amp; Data</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Reading and writing files, JSON encoding and decoding, buffers and streams.</p>
+            <div class="tc-tags">
+              <span>File I/O</span><span>JSON encode</span><span>JSON decode</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="web.html" class="topic-card soon">
+          <div class="tc-icon">🌐</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">Web</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">HTTP client and server, templates, middleware patterns, and database operations.</p>
+            <div class="tc-tags">
+              <span>HTTP</span><span>Templates</span><span>Middleware</span><span>Database</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Standard Library -->
+    <div class="home-section">
+      <div class="home-section-header">
+        <h2>Standard Library</h2>
+        <span>Package deep-dives with examples</span>
+      </div>
+      <div class="card-grid">
+
+        <a href="time-package-guide.html" class="topic-card">
+          <div class="tc-icon">⏱</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">time</span>
+              <span class="tc-badge ready">Ready</span>
+            </div>
+            <p class="tc-desc">Dates, durations, formatting, parsing, timezones, timers and tickers.</p>
+            <div class="tc-tags">
+              <span>time.Time</span><span>Duration</span><span>Timezones</span><span>Timers</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="strings-package-guide.html" class="topic-card">
+          <div class="tc-icon">🔤</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">strings</span>
+              <span class="tc-badge ready">Ready</span>
+            </div>
+            <p class="tc-desc">Searching, splitting, replacing, trimming, building and comparing strings.</p>
+            <div class="tc-tags">
+              <span>Contains</span><span>Split</span><span>Replace</span><span>Trim</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="fmt-package-guide.html" class="topic-card soon">
+          <div class="tc-icon">🖨</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">fmt</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Printf, Sprintf, Fprintf, format verbs, Stringer interface and Errorf.</p>
+            <div class="tc-tags">
+              <span>Printf</span><span>Sprintf</span><span>Stringer</span><span>Errorf</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="errors-package-guide.html" class="topic-card soon">
+          <div class="tc-icon">⚠️</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">errors</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">errors.New, error wrapping with %w, errors.Is, errors.As and custom error types.</p>
+            <div class="tc-tags">
+              <span>errors.Is</span><span>errors.As</span><span>Wrapping</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="sort-package-guide.html" class="topic-card soon">
+          <div class="tc-icon">📊</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">sort</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Sorting slices, custom comparators, stable sort, and binary search.</p>
+            <div class="tc-tags">
+              <span>sort.Slice</span><span>sort.Search</span><span>Custom</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="math-package-guide.html" class="topic-card soon">
+          <div class="tc-icon">🧮</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">math</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Common math functions, constants, rounding, random numbers and math/rand.</p>
+            <div class="tc-tags">
+              <span>Abs</span><span>Round</span><span>Sqrt</span><span>rand</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="os-package-guide.html" class="topic-card soon">
+          <div class="tc-icon">💻</div>
+          <div class="tc-body">
+            <div class="tc-header">
+              <span class="tc-title">os</span>
+              <span class="tc-badge soon">Soon</span>
+            </div>
+            <p class="tc-desc">Environment variables, file operations, process control, signals and exec.</p>
+            <div class="tc-tags">
+              <span>Getenv</span><span>ReadFile</span><span>Exit</span><span>Exec</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
