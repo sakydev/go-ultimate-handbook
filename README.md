@@ -14,7 +14,7 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 | Topic | Status |
 |-------|--------|
 | Basics | ✅ Ready |
-| Data Structures | 🚧 In progress |
+| Data Structures | ✅ Ready |
 | Concurrency | 🚧 In progress |
 | Testing | 🚧 In progress |
 | Reflection | 🚧 In progress |
