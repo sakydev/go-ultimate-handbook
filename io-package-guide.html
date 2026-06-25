@@ -3,45 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Go io — Ultimate Handbook</title>
+  <title>Go io Package — Ultimate Guide</title>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;--accent:#0a8060;--accent2:#0969da;--accent3:#9a6700;--accent4:#cf222e;--text:#1f2328;--muted:#656d76;--tag-bg:#dafbe1;--tag-text:#1a7f37;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--font-sans:'Inter','Segoe UI',system-ui,sans-serif;--radius:12px}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;padding:0 0 80px}
-    a{color:var(--accent2);text-decoration:none}
-    .hero{background:linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%);border-bottom:1px solid var(--border);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%);pointer-events:none}
-    .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--tag-bg);color:var(--tag-text);border:1px solid #82cfaa;border-radius:100px;padding:4px 14px;margin-bottom:20px}
-    .hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
-    .hero h1 span{color:var(--accent2)}
-    .hero p{font-size:1.1rem;color:var(--muted);max-width:540px;margin:0 auto}
-    .layout{display:grid;grid-template-columns:200px 1fr 220px;max-width:1300px;margin:0 auto}
-    .pkg-nav{position:sticky;top:24px;align-self:start;padding:28px 0 32px 24px;height:fit-content}
-    .home-link{display:block;font-weight:700;font-size:.88rem;color:var(--text);padding:4px 10px 18px;letter-spacing:-.01em;text-decoration:none}
-    .home-link:hover{color:var(--accent2)}
-    .nav-group{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px;margin-top:8px}
-    .pkg-list{list-style:none;display:flex;flex-direction:column;gap:2px}
-    .pkg-list a{display:flex;align-items:center;gap:8px;font-size:.84rem;font-family:var(--font-mono);color:var(--muted);padding:6px 10px;border-radius:7px;border:1px solid transparent;transition:all .15s;text-decoration:none}
-    .pkg-list a:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
-    .pkg-list a.active{color:var(--accent2);background:rgba(9,105,218,.07);border-color:rgba(9,105,218,.2);font-weight:600}
-    .pkg-list a .pkg-icon{font-size:.85rem;width:18px;text-align:center}
-    .content{padding:40px 32px;min-width:0;border-left:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh}
-    .toc-nav{position:sticky;top:24px;align-self:start;padding:32px 24px 32px 0;height:fit-content}
-    .cs-icon{font-size:2.8rem;margin-bottom:16px}
-    .cs-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .cs-sub{color:var(--muted);font-size:.92rem;margin-bottom:28px}
-    .cs-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px}
-    .cs-topics span{font-family:var(--font-mono);font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--muted)}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.pkg-nav,.toc-nav{display:none}.content{padding:24px 16px;border:none}}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; padding: 0 0 80px; }
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero { background: linear-gradient(135deg,#eaf2ff 0%,#e6f6f1 50%,#f0f8ff 100%); border-bottom: 1px solid var(--border); padding: 72px 24px 60px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 60% 40% at 30% 60%,rgba(10,128,96,.06) 0%,transparent 70%), radial-gradient(ellipse 50% 40% at 70% 40%,rgba(9,105,218,.05) 0%,transparent 70%); pointer-events:none; }
+    .hero-badge { display:inline-block; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; background:var(--tag-bg); color:var(--tag-text); border:1px solid #82cfaa; border-radius:100px; padding:4px 14px; margin-bottom:20px; }
+    .hero h1 { font-size:clamp(2rem,5vw,3.4rem); font-weight:800; letter-spacing:-.03em; line-height:1.1; margin-bottom:16px; }
+    .hero h1 span { color:var(--accent2); }
+    .hero p { font-size:1.1rem; color:var(--muted); max-width:540px; margin:0 auto 32px; }
+    .hero-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+    .hero-pills span { background:var(--surface2); border:1px solid var(--border); border-radius:100px; font-family:var(--font-mono); font-size:.78rem; padding:5px 14px; color:var(--muted); }
+
+    .layout { display:grid; grid-template-columns:200px 1fr 220px; max-width:1300px; margin:0 auto; }
+    .pkg-nav { position:sticky; top:24px; align-self:start; padding:32px 0 32px 24px; height:fit-content; }
+    .pkg-list { list-style:none; display:flex; flex-direction:column; gap:4px; }
+    .pkg-list a { display:flex; align-items:center; gap:8px; font-size:.86rem; font-family:var(--font-mono); color:var(--muted); padding:7px 10px; border-radius:7px; border:1px solid transparent; transition:all .15s; text-decoration:none; }
+    .pkg-list a:hover { color:var(--text); background:var(--surface); border-color:var(--border); }
+    .pkg-list a.active { color:var(--accent2); background:rgba(9,105,218,.07); border-color:rgba(9,105,218,.2); font-weight:600; }
+    .pkg-list a .pkg-icon { font-size:.85rem; width:18px; text-align:center; }
+    .home-link { display:block; font-weight:700; font-size:.88rem; color:var(--text); padding:4px 10px 18px; letter-spacing:-.01em; text-decoration:none; }
+    .home-link:hover { color:var(--accent2); text-decoration:none; }
+    .nav-group { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:4px 10px 6px; margin-top:8px; }
+
+    .toc-nav { position:sticky; top:24px; align-self:start; padding:32px 24px 32px 0; height:fit-content; }
+    .toc-title { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; padding-left:8px; }
+    .toc { list-style:none; display:flex; flex-direction:column; gap:2px; }
+    .toc a { display:block; font-size:.8rem; color:var(--muted); padding:5px 8px; border-radius:6px; border-right:2px solid transparent; transition:all .15s; }
+    .toc a:hover { color:var(--text); background:var(--surface); border-right-color:var(--accent); text-decoration:none; }
+
+    .content { padding:40px 32px; min-width:0; border-left:1px solid var(--border); border-right:1px solid var(--border); }
+    .section { margin-bottom:60px; scroll-margin-top:24px; }
+    .section-header { display:flex; align-items:center; gap:12px; margin-bottom:24px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+    .section-icon { width:36px; height:36px; border-radius:8px; display:grid; place-items:center; font-size:1.1rem; flex-shrink:0; }
+    .icon-blue   { background:rgba(9,105,218,.1);  color:var(--accent2); }
+    .icon-green  { background:rgba(10,128,96,.1);  color:var(--accent);  }
+    .icon-gold   { background:rgba(154,103,0,.1);  color:var(--accent3); }
+    .icon-red    { background:rgba(207,34,46,.1);  color:var(--accent4); }
+    .icon-purple { background:rgba(130,80,223,.1); color:#5a32a3;        }
+    .section-header h2 { font-size:1.3rem; font-weight:700; letter-spacing:-.02em; }
+    .section-header .section-tag { margin-left:auto; font-family:var(--font-mono); font-size:.68rem; background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:2px 10px; color:var(--muted); }
+
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; transition:border-color .2s; }
+    .card:hover { border-color:#adbac7; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px 12px; border-bottom:1px solid var(--border); background:var(--surface2); }
+    .card-title { font-size:.9rem; font-weight:600; color:var(--text); }
+    .card-badge { font-family:var(--font-mono); font-size:.65rem; border-radius:6px; padding:2px 8px; font-weight:600; }
+    .badge-blue   { background:rgba(9,105,218,.08);  color:var(--accent2); border:1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background:rgba(10,128,96,.08);  color:var(--accent);  border:1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background:rgba(154,103,0,.08);  color:var(--accent3); border:1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background:rgba(207,34,46,.08);  color:var(--accent4); border:1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background:rgba(130,80,223,.08); color:#5a32a3;        border:1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap { position:relative; padding:20px 20px 18px; }
+    pre { font-family:var(--font-mono); font-size:.82rem; line-height:1.75; overflow-x:auto; tab-size:4; }
+    .kw  { color:#cf222e; }
+    .fn  { color:#8250df; }
+    .str { color:#0a3069; }
+    .cmt { color:#6e7781; font-style:italic; }
+    .num { color:#0550ae; }
+    .pkg { color:#0969da; }
+    .typ { color:#953800; }
+    .out { color:#1a7f37; }
+
+    .callout { display:flex; gap:12px; background:#ddf4ff; border:1px solid #54aeff80; border-radius:8px; padding:14px 16px; margin-bottom:20px; font-size:.86rem; color:#1f2328; }
+    .callout.warn { background:#fff8c5; border-color:#d4a72c80; }
+    .callout.tip  { background:#dafbe1; border-color:#4ac26b80; }
+    .callout-icon { flex-shrink:0; font-size:1rem; margin-top:1px; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+    .ref-table { width:100%; border-collapse:collapse; font-size:.83rem; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); }
+    .ref-table thead th { background:var(--surface2); padding:10px 14px; text-align:left; font-weight:600; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+    .ref-table tbody tr { border-bottom:1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom:none; }
+    .ref-table tbody tr:hover { background:var(--surface2); }
+    .ref-table td { padding:9px 14px; vertical-align:top; }
+    .ref-table td:first-child { font-family:var(--font-mono); font-size:.78rem; color:var(--accent3); white-space:nowrap; }
+    .ref-table td:nth-child(2) { font-family:var(--font-mono); font-size:.75rem; color:var(--accent2); }
+    .ref-table td:last-child { color:var(--muted); }
+
+    @media(max-width:900px) { .layout{grid-template-columns:1fr} .pkg-nav,.toc-nav{display:none} .content{padding:24px 16px;border:none} .two-col{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
+
 <div class="hero">
   <div class="hero-badge">Standard Library Deep Dive</div>
-  <h1>Go <span>io</span></h1>
-  <p>Foundational Reader and Writer interfaces — the primitives everything else in Go I/O builds on.</p>
+  <h1>Go <span>io</span> Package</h1>
+  <p>Reader, Writer, and the small interfaces that make Go I/O composable — plus bufio for efficient buffered I/O.</p>
+  <div class="hero-pills">
+    <span>io.Reader</span>
+    <span>io.Writer</span>
+    <span>io.Copy</span>
+    <span>io.ReadAll</span>
+    <span>io.Pipe</span>
+    <span>io.LimitReader</span>
+    <span>bufio.Scanner</span>
+    <span>bufio.Writer</span>
+    <span>bytes.Buffer</span>
+  </div>
 </div>
+
 <div class="layout">
   <nav class="pkg-nav">
     <a href="index.html" class="home-link">Go Handbook</a>
@@ -68,19 +155,550 @@
       <li><a href="os-package-guide.html"><span class="pkg-icon">💻</span>os</a></li>
       <li><a href="strconv-package-guide.html"><span class="pkg-icon">🔢</span>strconv</a></li>
       <li><a href="context-package-guide.html"><span class="pkg-icon">🎯</span>context</a></li>
-      <li><a href="io-package-guide.html"><span class="pkg-icon">🔌</span>io</a></li>
+      <li><a href="io-package-guide.html" class="active"><span class="pkg-icon">🔌</span>io</a></li>
       <li><a href="slices-package-guide.html"><span class="pkg-icon">🗂</span>slices</a></li>
     </ul>
   </nav>
+
   <main class="content">
-    <div class="cs-icon">🔌</div>
-    <h2 class="cs-title">Coming Soon</h2>
-    <p class="cs-sub">This page is being written. Topics that will be covered:</p>
-    <div class="cs-topics">
-      <span>io.Reader</span><span>io.Writer</span><span>io.Copy</span><span>io.ReadAll</span><span>io.Pipe</span><span>io.LimitReader</span><span>bufio.Scanner</span><span>bufio.Writer</span>
-    </div>
+
+    <!-- ── 1. CORE INTERFACES ────────────────────────────── -->
+    <section class="section" id="interfaces">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔌</div>
+        <h2>Core Interfaces</h2>
+        <span class="section-tag">Reader · Writer · Closer · Seeker</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>The power of Go I/O is that everything is composed from tiny interfaces. A function that accepts <code>io.Reader</code> works with files, network connections, HTTP bodies, strings, and in-memory buffers — all without change.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">The four fundamental interfaces</span>
+          <span class="card-badge badge-blue">Interfaces</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Reader — anything you can read bytes from</span>
+<span class="kw">type</span> <span class="typ">Reader</span> <span class="kw">interface</span> {
+    <span class="fn">Read</span>(p []<span class="typ">byte</span>) (n <span class="typ">int</span>, err <span class="typ">error</span>)
+}
+
+<span class="cmt">// Writer — anything you can write bytes to</span>
+<span class="kw">type</span> <span class="typ">Writer</span> <span class="kw">interface</span> {
+    <span class="fn">Write</span>(p []<span class="typ">byte</span>) (n <span class="typ">int</span>, err <span class="typ">error</span>)
+}
+
+<span class="cmt">// Closer — anything that can be closed</span>
+<span class="kw">type</span> <span class="typ">Closer</span> <span class="kw">interface</span> {
+    <span class="fn">Close</span>() <span class="typ">error</span>
+}
+
+<span class="cmt">// Seeker — random access within a stream</span>
+<span class="kw">type</span> <span class="typ">Seeker</span> <span class="kw">interface</span> {
+    <span class="fn">Seek</span>(offset <span class="typ">int64</span>, whence <span class="typ">int</span>) (<span class="typ">int64</span>, <span class="typ">error</span>)
+    <span class="cmt">// whence: io.SeekStart=0, io.SeekCurrent=1, io.SeekEnd=2</span>
+}
+
+<span class="cmt">// Composed interfaces used throughout the stdlib</span>
+<span class="cmt">// io.ReadCloser   = Reader + Closer  (e.g. http.Response.Body)</span>
+<span class="cmt">// io.WriteCloser  = Writer + Closer</span>
+<span class="cmt">// io.ReadWriter   = Reader + Writer</span>
+<span class="cmt">// io.ReadWriteCloser = Reader + Writer + Closer</span>
+<span class="cmt">// io.ReadSeeker   = Reader + Seeker  (e.g. *os.File, *bytes.Reader)</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Common types that satisfy io.Reader and io.Writer</span>
+          <span class="card-badge badge-blue">Implementations</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// io.Reader implementations</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (*<span class="pkg">os</span>.<span class="typ">File</span>)(nil)            <span class="cmt">// files</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (*<span class="pkg">bytes</span>.<span class="typ">Buffer</span>)(nil)        <span class="cmt">// in-memory buffer</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (*<span class="pkg">bytes</span>.<span class="typ">Reader</span>)(nil)        <span class="cmt">// read-only byte slice</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (*<span class="pkg">strings</span>.<span class="typ">Reader</span>)(nil)      <span class="cmt">// read-only string</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (<span class="pkg">net</span>.<span class="typ">Conn</span>)(nil)             <span class="cmt">// network connections</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Reader</span> = (<span class="pkg">http</span>.<span class="typ">Response</span>{}).Body       <span class="cmt">// HTTP response body</span>
+
+<span class="cmt">// io.Writer implementations</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Writer</span> = (*<span class="pkg">os</span>.<span class="typ">File</span>)(nil)            <span class="cmt">// files, os.Stdout, os.Stderr</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Writer</span> = (*<span class="pkg">bytes</span>.<span class="typ">Buffer</span>)(nil)        <span class="cmt">// in-memory buffer</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Writer</span> = (<span class="pkg">http</span>.<span class="typ">ResponseWriter</span>)(nil)  <span class="cmt">// HTTP response</span>
+<span class="kw">var</span> _ <span class="pkg">io</span>.<span class="typ">Writer</span> = (*<span class="pkg">bufio</span>.<span class="typ">Writer</span>)(nil)        <span class="cmt">// buffered writer</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. IO FUNCTIONS ───────────────────────────────── -->
+    <section class="section" id="functions">
+      <div class="section-header">
+        <div class="section-icon icon-green">⚙️</div>
+        <h2>io Package Functions</h2>
+        <span class="section-tag">Copy · ReadAll · WriteString · Discard</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">io.Copy — stream from reader to writer</span>
+          <span class="card-badge badge-green">Copy</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Copy(dst Writer, src Reader) → written int64, err error</span>
+<span class="cmt">// Copies until EOF or error; uses a 32 KB internal buffer</span>
+
+<span class="cmt">// Copy a file</span>
+src, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"input.txt"</span>)
+dst, _ := <span class="pkg">os</span>.<span class="fn">Create</span>(<span class="str">"output.txt"</span>)
+<span class="kw">defer</span> src.<span class="fn">Close</span>(); <span class="kw">defer</span> dst.<span class="fn">Close</span>()
+n, err := <span class="pkg">io</span>.<span class="fn">Copy</span>(dst, src)
+<span class="cmt">// n = bytes written</span>
+
+<span class="cmt">// Serve a file over HTTP</span>
+http.<span class="fn">HandleFunc</span>(<span class="str">"/"</span>, <span class="kw">func</span>(w http.<span class="typ">ResponseWriter</span>, r *http.<span class="typ">Request</span>) {
+    f, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"index.html"</span>)
+    <span class="kw">defer</span> f.<span class="fn">Close</span>()
+    <span class="pkg">io</span>.<span class="fn">Copy</span>(w, f)
+})
+
+<span class="cmt">// CopyN — copy exactly n bytes</span>
+<span class="pkg">io</span>.<span class="fn">CopyN</span>(dst, src, <span class="num">1024</span>)
+
+<span class="cmt">// CopyBuffer — use your own buffer (avoids alloc in tight loops)</span>
+buf := <span class="fn">make</span>([]<span class="typ">byte</span>, <span class="num">64</span>*<span class="num">1024</span>)
+<span class="pkg">io</span>.<span class="fn">CopyBuffer</span>(dst, src, buf)</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">io.ReadAll — read everything at once</span>
+            <span class="card-badge badge-green">ReadAll</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// ReadAll reads until EOF, returns []byte</span>
+body, err := <span class="pkg">io</span>.<span class="fn">ReadAll</span>(resp.Body)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="pkg">log</span>.<span class="fn">Fatal</span>(err)
+}
+
+<span class="cmt">// Read a string from stdin</span>
+data, _ := <span class="pkg">io</span>.<span class="fn">ReadAll</span>(<span class="pkg">os</span>.Stdin)
+
+<span class="cmt">// Read from a strings.Reader</span>
+r := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"hello world"</span>)
+b, _ := <span class="pkg">io</span>.<span class="fn">ReadAll</span>(r)
+<span class="cmt">// b = []byte("hello world")</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">io.WriteString &amp; io.Discard</span>
+            <span class="card-badge badge-green">Misc</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// WriteString — write a string to any Writer</span>
+<span class="cmt">// (avoids converting to []byte manually)</span>
+<span class="pkg">io</span>.<span class="fn">WriteString</span>(<span class="pkg">os</span>.Stdout, <span class="str">"Hello\n"</span>)
+<span class="pkg">io</span>.<span class="fn">WriteString</span>(w, <span class="str">"HTTP/1.1 200 OK\r\n"</span>)
+
+<span class="cmt">// io.Discard — a Writer that discards all bytes</span>
+<span class="cmt">// Useful for draining a reader (e.g. HTTP body)</span>
+<span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">io</span>.Discard, resp.Body)
+
+<span class="cmt">// Benchmark without I/O overhead</span>
+n, _ := <span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">io</span>.Discard, bigReader)</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">io.LimitReader, io.MultiReader, io.TeeReader</span>
+          <span class="card-badge badge-gold">Wrappers</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// LimitReader — read at most n bytes from r</span>
+limited := <span class="pkg">io</span>.<span class="fn">LimitReader</span>(resp.Body, <span class="num">10</span>*<span class="num">1024</span>*<span class="num">1024</span>) <span class="cmt">// cap at 10 MB</span>
+data, _ := <span class="pkg">io</span>.<span class="fn">ReadAll</span>(limited)
+
+<span class="cmt">// MultiReader — concatenate multiple readers into one</span>
+header := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"HEADER\n"</span>)
+body   := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"BODY\n"</span>)
+footer := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"FOOTER\n"</span>)
+combined := <span class="pkg">io</span>.<span class="fn">MultiReader</span>(header, body, footer)
+<span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">os</span>.Stdout, combined)
+<span class="cmt">// HEADER</span>
+<span class="cmt">// BODY</span>
+<span class="cmt">// FOOTER</span>
+
+<span class="cmt">// TeeReader — read and simultaneously write to w</span>
+<span class="kw">var</span> buf <span class="pkg">bytes</span>.<span class="typ">Buffer</span>
+tee := <span class="pkg">io</span>.<span class="fn">TeeReader</span>(resp.Body, &buf) <span class="cmt">// taps the stream</span>
+<span class="pkg">json</span>.<span class="fn">NewDecoder</span>(tee).<span class="fn">Decode</span>(&result) <span class="cmt">// decode AND keep raw bytes in buf</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">io.Pipe — synchronous in-memory pipe</span>
+          <span class="card-badge badge-purple">Pipe</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Pipe creates a connected (PipeReader, PipeWriter) pair</span>
+<span class="cmt">// Write blocks until Read consumes the data (no internal buffer)</span>
+pr, pw := <span class="pkg">io</span>.<span class="fn">Pipe</span>()
+
+<span class="kw">go func</span>() {
+    <span class="pkg">json</span>.<span class="fn">NewEncoder</span>(pw).<span class="fn">Encode</span>(myStruct)
+    pw.<span class="fn">Close</span>()  <span class="cmt">// signal EOF to reader</span>
+}()
+
+<span class="kw">var</span> result <span class="typ">MyStruct</span>
+<span class="pkg">json</span>.<span class="fn">NewDecoder</span>(pr).<span class="fn">Decode</span>(&result)
+
+<span class="cmt">// Common pattern: stream large data through an encoder</span>
+<span class="cmt">// without buffering the whole thing in memory</span>
+pr2, pw2 := <span class="pkg">io</span>.<span class="fn">Pipe</span>()
+<span class="kw">go func</span>() {
+    <span class="pkg">gzip</span>.<span class="fn">NewWriter</span>(pw2)  <span class="cmt">// compress as you go</span>
+    pw2.<span class="fn">Close</span>()
+}()
+<span class="pkg">http</span>.<span class="fn">Post</span>(url, <span class="str">"application/gzip"</span>, pr2)</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. BUFIO ──────────────────────────────────────── -->
+    <section class="section" id="bufio">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🧱</div>
+        <h2>bufio — Buffered I/O</h2>
+        <span class="section-tag">Scanner · Reader · Writer</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>Raw <code>Read</code> calls can be expensive — each call may be a syscall. <code>bufio</code> wraps any Reader or Writer and batches those calls, dramatically reducing overhead for line-at-a-time or small-write workloads.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">bufio.Scanner — line-by-line reading</span>
+          <span class="card-badge badge-gold">Scanner</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// The idiomatic way to read lines from any Reader</span>
+scanner := <span class="pkg">bufio</span>.<span class="fn">NewScanner</span>(<span class="pkg">os</span>.Stdin)
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    line := scanner.<span class="fn">Text</span>()  <span class="cmt">// string, no trailing \n</span>
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(line)
+}
+<span class="kw">if</span> err := scanner.<span class="fn">Err</span>(); err != <span class="kw">nil</span> {
+    <span class="pkg">log</span>.<span class="fn">Fatal</span>(err)
+}
+
+<span class="cmt">// Read lines from a file</span>
+f, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(<span class="str">"data.txt"</span>)
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+scanner = <span class="pkg">bufio</span>.<span class="fn">NewScanner</span>(f)
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(scanner.<span class="fn">Text</span>())
+}
+
+<span class="cmt">// Bytes() instead of Text() avoids a string alloc</span>
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    b := scanner.<span class="fn">Bytes</span>()  <span class="cmt">// valid only until next Scan()</span>
+    _ = b
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Scanner split functions — words, runes, custom</span>
+          <span class="card-badge badge-gold">SplitFunc</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Default split: ScanLines (split on \n)</span>
+scanner := <span class="pkg">bufio</span>.<span class="fn">NewScanner</span>(r)
+
+<span class="cmt">// Split on whitespace-delimited words</span>
+scanner.<span class="fn">Split</span>(<span class="pkg">bufio</span>.ScanWords)
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(scanner.<span class="fn">Text</span>())
+}
+
+<span class="cmt">// Split on individual runes</span>
+scanner.<span class="fn">Split</span>(<span class="pkg">bufio</span>.ScanRunes)
+
+<span class="cmt">// Split on individual bytes</span>
+scanner.<span class="fn">Split</span>(<span class="pkg">bufio</span>.ScanBytes)
+
+<span class="cmt">// Increase buffer for long lines (default 64 KB)</span>
+scanner.<span class="fn">Buffer</span>(<span class="fn">make</span>([]<span class="typ">byte</span>, <span class="num">1</span>*<span class="num">1024</span>*<span class="num">1024</span>), <span class="num">1</span>*<span class="num">1024</span>*<span class="num">1024</span>)</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bufio.Reader — buffered reading</span>
+            <span class="card-badge badge-blue">Reader</span>
+          </div>
+          <div class="code-wrap">
+<pre>br := <span class="pkg">bufio</span>.<span class="fn">NewReader</span>(<span class="pkg">os</span>.Stdin)
+
+<span class="cmt">// ReadString — read until delimiter</span>
+line, err := br.<span class="fn">ReadString</span>(<span class="str">'\n'</span>)
+<span class="cmt">// includes the delimiter in the result</span>
+
+<span class="cmt">// ReadLine — no delimiter in result</span>
+line2, isPrefix, _ := br.<span class="fn">ReadLine</span>()
+<span class="cmt">// isPrefix=true when line > buffer size</span>
+
+<span class="cmt">// Peek — look ahead without consuming</span>
+b, _ := br.<span class="fn">Peek</span>(<span class="num">4</span>)  <span class="cmt">// first 4 bytes, not consumed</span>
+
+<span class="cmt">// ReadByte / UnreadByte — one byte at a time</span>
+c, _ := br.<span class="fn">ReadByte</span>()
+br.<span class="fn">UnreadByte</span>()</pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bufio.Writer — buffered writing</span>
+            <span class="card-badge badge-blue">Writer</span>
+          </div>
+          <div class="code-wrap">
+<pre>bw := <span class="pkg">bufio</span>.<span class="fn">NewWriter</span>(<span class="pkg">os</span>.Stdout)
+
+<span class="cmt">// Writes go to the buffer until Flush</span>
+<span class="pkg">fmt</span>.<span class="fn">Fprintln</span>(bw, <span class="str">"line 1"</span>)
+<span class="pkg">fmt</span>.<span class="fn">Fprintln</span>(bw, <span class="str">"line 2"</span>)
+bw.<span class="fn">WriteString</span>(<span class="str">"line 3\n"</span>)
+
+<span class="cmt">// Flush sends buffered data to underlying writer</span>
+<span class="kw">if</span> err := bw.<span class="fn">Flush</span>(); err != <span class="kw">nil</span> {
+    <span class="pkg">log</span>.<span class="fn">Fatal</span>(err)
+}
+
+<span class="cmt">// Custom buffer size (default 4 KB)</span>
+bw2 := <span class="pkg">bufio</span>.<span class="fn">NewWriterSize</span>(f, <span class="num">64</span>*<span class="num">1024</span>)
+<span class="cmt">// Don't forget to Flush when done!</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. BYTES.BUFFER & STRINGS.READER ─────────────── -->
+    <section class="section" id="buffers">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🗄️</div>
+        <h2>In-Memory Buffers</h2>
+        <span class="section-tag">bytes.Buffer · strings.Reader · bytes.Reader</span>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">bytes.Buffer — read/write in-memory buffer</span>
+            <span class="card-badge badge-purple">bytes.Buffer</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">var</span> buf <span class="pkg">bytes</span>.<span class="typ">Buffer</span>  <span class="cmt">// zero value is ready to use</span>
+
+<span class="cmt">// Write to it</span>
+buf.<span class="fn">WriteString</span>(<span class="str">"Hello"</span>)
+buf.<span class="fn">WriteByte</span>(<span class="str">','</span>)
+<span class="pkg">fmt</span>.<span class="fn">Fprintf</span>(&buf, <span class="str">" %s!"</span>, <span class="str">"World"</span>)
+
+<span class="cmt">// Read from it</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(buf.<span class="fn">String</span>()) <span class="cmt">// "Hello, World!"</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(buf.<span class="fn">Len</span>())    <span class="cmt">// 13</span>
+
+<span class="cmt">// Use as io.Writer then io.Reader</span>
+<span class="pkg">json</span>.<span class="fn">NewEncoder</span>(&buf).<span class="fn">Encode</span>(myData) <span class="cmt">// write JSON</span>
+<span class="pkg">json</span>.<span class="fn">NewDecoder</span>(&buf).<span class="fn">Decode</span>(&out)   <span class="cmt">// read it back</span>
+
+buf.<span class="fn">Reset</span>()  <span class="cmt">// clear without reallocating</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">strings.NewReader &amp; bytes.NewReader</span>
+            <span class="card-badge badge-purple">Readers</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// strings.NewReader — wrap a string as io.Reader</span>
+r := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"Hello, World!"</span>)
+<span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">os</span>.Stdout, r)
+
+<span class="cmt">// Implements io.ReadSeeker — can seek</span>
+r.<span class="fn">Seek</span>(<span class="num">0</span>, <span class="pkg">io</span>.SeekStart)  <span class="cmt">// rewind to beginning</span>
+r.<span class="fn">Seek</span>(-<span class="num">5</span>, <span class="pkg">io</span>.SeekEnd)   <span class="cmt">// 5 bytes before end</span>
+
+<span class="cmt">// bytes.NewReader — wrap []byte as io.Reader</span>
+data := []<span class="typ">byte</span>{<span class="num">0x47</span>, <span class="num">0x6f</span>}
+br := <span class="pkg">bytes</span>.<span class="fn">NewReader</span>(data)
+<span class="pkg">json</span>.<span class="fn">NewDecoder</span>(br).<span class="fn">Decode</span>(&v)
+
+<span class="cmt">// bytes.NewBuffer — writable starting content</span>
+buf2 := <span class="pkg">bytes</span>.<span class="fn">NewBuffer</span>([]<span class="typ">byte</span>(<span class="str">"seed"</span>))</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. PATTERNS ───────────────────────────────────── -->
+    <section class="section" id="patterns">
+      <div class="section-header">
+        <div class="section-icon icon-red">📐</div>
+        <h2>Common Patterns</h2>
+        <span class="section-tag">Implement Reader · Chain · Test</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Implementing io.Reader on your own type</span>
+          <span class="card-badge badge-red">Custom Reader</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// A simple counter reader that wraps another reader</span>
+<span class="kw">type</span> <span class="typ">CountReader</span> <span class="kw">struct</span> {
+    r     <span class="pkg">io</span>.<span class="typ">Reader</span>
+    total <span class="typ">int64</span>
+}
+
+<span class="kw">func</span> (c *<span class="typ">CountReader</span>) <span class="fn">Read</span>(p []<span class="typ">byte</span>) (<span class="typ">int</span>, <span class="typ">error</span>) {
+    n, err := c.r.<span class="fn">Read</span>(p)
+    c.total += <span class="typ">int64</span>(n)
+    <span class="kw">return</span> n, err
+}
+
+cr := &<span class="typ">CountReader</span>{r: resp.Body}
+<span class="pkg">io</span>.<span class="fn">Copy</span>(<span class="pkg">io</span>.Discard, cr)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"bytes read:"</span>, cr.total)
+
+<span class="cmt">// io.EOF is the expected signal for "no more data"</span>
+<span class="cmt">// Return it (or wrap it) when your reader is exhausted</span>
+<span class="kw">func</span> (c *<span class="typ">CountReader</span>) <span class="fn">Read</span>(p []<span class="typ">byte</span>) (<span class="typ">int</span>, <span class="typ">error</span>) {
+    <span class="kw">if</span> c.total >= c.limit {
+        <span class="kw">return</span> <span class="num">0</span>, <span class="pkg">io</span>.EOF
+    }
+    <span class="cmt">// ...</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Testing with io — use strings.NewReader and bytes.Buffer</span>
+          <span class="card-badge badge-green">Testing</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Functions that accept io.Reader are trivially testable</span>
+<span class="kw">func</span> <span class="fn">CountWords</span>(r <span class="pkg">io</span>.<span class="typ">Reader</span>) <span class="typ">int</span> {
+    scanner := <span class="pkg">bufio</span>.<span class="fn">NewScanner</span>(r)
+    scanner.<span class="fn">Split</span>(<span class="pkg">bufio</span>.ScanWords)
+    count := <span class="num">0</span>
+    <span class="kw">for</span> scanner.<span class="fn">Scan</span>() { count++ }
+    <span class="kw">return</span> count
+}
+
+<span class="cmt">// In tests — no need for real files</span>
+<span class="kw">func</span> <span class="fn">TestCountWords</span>(t *<span class="pkg">testing</span>.<span class="typ">T</span>) {
+    r := <span class="pkg">strings</span>.<span class="fn">NewReader</span>(<span class="str">"hello world foo"</span>)
+    got := <span class="fn">CountWords</span>(r)
+    <span class="kw">if</span> got != <span class="num">3</span> {
+        t.<span class="fn">Errorf</span>(<span class="str">"got %d, want 3"</span>, got)
+    }
+}
+
+<span class="cmt">// Functions that accept io.Writer use bytes.Buffer in tests</span>
+<span class="kw">func</span> <span class="fn">TestWrite</span>(t *<span class="pkg">testing</span>.<span class="typ">T</span>) {
+    <span class="kw">var</span> buf <span class="pkg">bytes</span>.<span class="typ">Buffer</span>
+    <span class="fn">WriteReport</span>(&buf, data)
+    <span class="kw">if</span> !<span class="pkg">strings</span>.<span class="fn">Contains</span>(buf.<span class="fn">String</span>(), <span class="str">"Total:"</span>) {
+        t.<span class="fn">Error</span>(<span class="str">"missing Total: in output"</span>)
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── REFERENCE TABLE ───────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">All key functions &amp; types</span>
+      </div>
+
+      <table class="ref-table" style="margin-bottom:24px">
+        <thead><tr><th>io function / type</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>io.Reader</td><td>interface</td><td>Read(p []byte) (n int, err error)</td></tr>
+          <tr><td>io.Writer</td><td>interface</td><td>Write(p []byte) (n int, err error)</td></tr>
+          <tr><td>io.Closer</td><td>interface</td><td>Close() error</td></tr>
+          <tr><td>io.Seeker</td><td>interface</td><td>Seek(offset int64, whence int) (int64, error)</td></tr>
+          <tr><td>io.ReadCloser</td><td>interface</td><td>Reader + Closer (e.g. http.Response.Body)</td></tr>
+          <tr><td>io.ReadWriter</td><td>interface</td><td>Reader + Writer</td></tr>
+          <tr><td>io.Copy(dst, src)</td><td>int64, error</td><td>Stream all bytes from src to dst</td></tr>
+          <tr><td>io.CopyN(dst, src, n)</td><td>int64, error</td><td>Copy exactly n bytes</td></tr>
+          <tr><td>io.CopyBuffer(dst, src, buf)</td><td>int64, error</td><td>Copy using a caller-supplied buffer</td></tr>
+          <tr><td>io.ReadAll(r)</td><td>[]byte, error</td><td>Read until EOF, return all bytes</td></tr>
+          <tr><td>io.WriteString(w, s)</td><td>int, error</td><td>Write string to Writer without []byte cast</td></tr>
+          <tr><td>io.LimitReader(r, n)</td><td>Reader</td><td>Wrap r to read at most n bytes</td></tr>
+          <tr><td>io.MultiReader(rs...)</td><td>Reader</td><td>Concatenate multiple readers</td></tr>
+          <tr><td>io.TeeReader(r, w)</td><td>Reader</td><td>Read from r and copy to w simultaneously</td></tr>
+          <tr><td>io.Pipe()</td><td>*PipeReader, *PipeWriter</td><td>Synchronous in-memory pipe</td></tr>
+          <tr><td>io.Discard</td><td>Writer</td><td>Writer that silently discards all bytes</td></tr>
+          <tr><td>io.EOF</td><td>error</td><td>Sentinel: no more data to read</td></tr>
+          <tr><td>io.SeekStart / SeekCurrent / SeekEnd</td><td>int</td><td>Whence values for Seek: 0 / 1 / 2</td></tr>
+        </tbody>
+      </table>
+
+      <table class="ref-table">
+        <thead><tr><th>bufio / bytes / strings</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>bufio.NewScanner(r)</td><td>*Scanner</td><td>Line-by-line scanner over any Reader</td></tr>
+          <tr><td>scanner.Scan()</td><td>bool</td><td>Advance to next token; false at EOF or error</td></tr>
+          <tr><td>scanner.Text()</td><td>string</td><td>Current token as string</td></tr>
+          <tr><td>scanner.Bytes()</td><td>[]byte</td><td>Current token as bytes (no alloc)</td></tr>
+          <tr><td>scanner.Split(f)</td><td>—</td><td>Set split func: ScanLines/Words/Runes/Bytes</td></tr>
+          <tr><td>scanner.Buffer(buf, max)</td><td>—</td><td>Override internal buffer size</td></tr>
+          <tr><td>bufio.NewReader(r)</td><td>*Reader</td><td>Buffered reader; ReadString, Peek, etc.</td></tr>
+          <tr><td>bufio.NewWriter(w)</td><td>*Writer</td><td>Buffered writer; must call Flush()</td></tr>
+          <tr><td>bytes.Buffer</td><td>struct</td><td>Read/write in-memory buffer; zero value ready</td></tr>
+          <tr><td>bytes.NewReader(b)</td><td>*Reader</td><td>Read-only Reader + Seeker over []byte</td></tr>
+          <tr><td>strings.NewReader(s)</td><td>*Reader</td><td>Read-only Reader + Seeker over string</td></tr>
+        </tbody>
+      </table>
+    </section>
+
   </main>
-  <nav class="toc-nav"></nav>
+
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#interfaces">1 — Core Interfaces</a></li>
+      <li><a href="#functions">2 — io Functions</a></li>
+      <li><a href="#bufio">3 — bufio</a></li>
+      <li><a href="#buffers">4 — In-Memory Buffers</a></li>
+      <li><a href="#patterns">5 — Patterns</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
 </div>
+
 </body>
 </html>
