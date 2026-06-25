@@ -11,28 +11,28 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 ## What's covered
 
 **Language**
-- Basics
-- Data Structures
-- Concurrency
-- Testing
-- Reflection
-- File & Data
-- Web
-- Packages & Modules
-- Performance
+- [Basics](basics.html)
+- [Data Structures](data-structures.html)
+- [Concurrency](concurrency.html)
+- [Testing](testing.html)
+- [Reflection](reflection.html)
+- [File & Data](file-data.html)
+- [Web](web.html)
+- [Packages & Modules](packages-modules.html)
+- [Performance](performance.html)
 
 **Standard Library**
-- time
-- strings
-- fmt
-- errors
-- sort
-- math
-- os
-- strconv
-- context
-- io
-- slices
+- [time](time-package-guide.html)
+- [strings](strings-package-guide.html)
+- [fmt](fmt-package-guide.html)
+- [errors](errors-package-guide.html)
+- [sort](sort-package-guide.html)
+- [math](math-package-guide.html)
+- [os](os-package-guide.html)
+- [strconv](strconv-package-guide.html)
+- [context](context-package-guide.html)
+- [io](io-package-guide.html)
+- [slices](slices-package-guide.html)
 
 ## Contributing
 
