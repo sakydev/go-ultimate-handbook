@@ -11,28 +11,28 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 ## What's covered
 
 **Language**
-| Topic | Status |
-|-------|--------|
-| Basics | ✅ Ready |
-| Data Structures | ✅ Ready |
-| Concurrency | ✅ Ready |
-| Testing | ✅ Ready |
-| Reflection | ✅ Ready |
-| File & Data | ✅ Ready |
-| Web | ✅ Ready |
-| Packages &amp; Modules | ✅ Ready |
-| Performance | ✅ Ready |
+- Basics
+- Data Structures
+- Concurrency
+- Testing
+- Reflection
+- File & Data
+- Web
+- Packages & Modules
+- Performance
 
 **Standard Library**
-| Package | Status |
-|---------|--------|
-| time | ✅ Ready |
-| strings | ✅ Ready |
-| fmt | 🚧 In progress |
-| errors | 🚧 In progress |
-| sort | 🚧 In progress |
-| math | 🚧 In progress |
-| os | 🚧 In progress |
+- time
+- strings
+- fmt
+- errors
+- sort
+- math
+- os
+- strconv
+- context
+- io
+- slices
 
 ## Contributing
 
