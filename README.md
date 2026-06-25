@@ -11,28 +11,28 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 ## What's covered
 
 **Language**
-- [Basics](basics.html)
-- [Data Structures](data-structures.html)
-- [Concurrency](concurrency.html)
-- [Testing](testing.html)
-- [Reflection](reflection.html)
-- [File & Data](file-data.html)
-- [Web](web.html)
-- [Packages & Modules](packages-modules.html)
-- [Performance](performance.html)
+- [Basics](https://sakydev.github.io/go-ultimate-handbook/basics.html)
+- [Data Structures](https://sakydev.github.io/go-ultimate-handbook/data-structures.html)
+- [Concurrency](https://sakydev.github.io/go-ultimate-handbook/concurrency.html)
+- [Testing](https://sakydev.github.io/go-ultimate-handbook/testing.html)
+- [Reflection](https://sakydev.github.io/go-ultimate-handbook/reflection.html)
+- [File & Data](https://sakydev.github.io/go-ultimate-handbook/file-data.html)
+- [Web](https://sakydev.github.io/go-ultimate-handbook/web.html)
+- [Packages & Modules](https://sakydev.github.io/go-ultimate-handbook/packages-modules.html)
+- [Performance](https://sakydev.github.io/go-ultimate-handbook/performance.html)
 
 **Standard Library**
-- [time](time-package-guide.html)
-- [strings](strings-package-guide.html)
-- [fmt](fmt-package-guide.html)
-- [errors](errors-package-guide.html)
-- [sort](sort-package-guide.html)
-- [math](math-package-guide.html)
-- [os](os-package-guide.html)
-- [strconv](strconv-package-guide.html)
-- [context](context-package-guide.html)
-- [io](io-package-guide.html)
-- [slices](slices-package-guide.html)
+- [time](https://sakydev.github.io/go-ultimate-handbook/time-package-guide.html)
+- [strings](https://sakydev.github.io/go-ultimate-handbook/strings-package-guide.html)
+- [fmt](https://sakydev.github.io/go-ultimate-handbook/fmt-package-guide.html)
+- [errors](https://sakydev.github.io/go-ultimate-handbook/errors-package-guide.html)
+- [sort](https://sakydev.github.io/go-ultimate-handbook/sort-package-guide.html)
+- [math](https://sakydev.github.io/go-ultimate-handbook/math-package-guide.html)
+- [os](https://sakydev.github.io/go-ultimate-handbook/os-package-guide.html)
+- [strconv](https://sakydev.github.io/go-ultimate-handbook/strconv-package-guide.html)
+- [context](https://sakydev.github.io/go-ultimate-handbook/context-package-guide.html)
+- [io](https://sakydev.github.io/go-ultimate-handbook/io-package-guide.html)
+- [slices](https://sakydev.github.io/go-ultimate-handbook/slices-package-guide.html)
 
 ## Contributing
 
