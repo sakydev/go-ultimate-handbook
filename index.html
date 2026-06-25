@@ -267,29 +267,6 @@
       letter-spacing: -.01em;
     }
 
-    .tc-badge {
-      font-family: var(--font-mono);
-      font-size: .6rem;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      border-radius: 100px;
-      padding: 2px 8px;
-      flex-shrink: 0;
-    }
-
-    .tc-badge.ready {
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      border: 1px solid #82cfaa;
-    }
-
-    .tc-badge.soon {
-      background: var(--surface2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
     .tc-desc {
       font-size: .8rem;
       color: var(--muted);
@@ -382,12 +359,11 @@
       </div>
       <div class="card-grid">
 
-        <a href="basics.html" class="topic-card ready">
+        <a href="basics.html" class="topic-card">
           <div class="tc-icon">📖</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Basics</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Variables, constants, pointers, loops, functions, closures, defer, and error handling.</p>
             <div class="tc-tags">
@@ -396,12 +372,11 @@
           </div>
         </a>
 
-        <a href="data-structures.html" class="topic-card ready">
+        <a href="data-structures.html" class="topic-card">
           <div class="tc-icon">📦</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Data Structures</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Structs, embedding, slices, maps, interfaces, type assertions, and generics.</p>
             <div class="tc-tags">
@@ -410,12 +385,11 @@
           </div>
         </a>
 
-        <a href="concurrency.html" class="topic-card ready">
+        <a href="concurrency.html" class="topic-card">
           <div class="tc-icon">🔀</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Concurrency</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Goroutines, channels, select, WaitGroup, Mutex, sync.Once, atomic, and context.</p>
             <div class="tc-tags">
@@ -429,7 +403,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Testing</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Table-driven tests, benchmarks, test helpers, setup and teardown patterns.</p>
             <div class="tc-tags">
@@ -443,7 +416,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Reflection</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">reflect.Type, reflect.Value, struct tags, and practical use cases for reflection.</p>
             <div class="tc-tags">
@@ -457,7 +429,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">File &amp; Data</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Reading and writing files, JSON encoding and decoding, buffers and streams.</p>
             <div class="tc-tags">
@@ -471,7 +442,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Web</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">HTTP client and server, templates, middleware patterns, and database operations.</p>
             <div class="tc-tags">
@@ -485,7 +455,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Packages &amp; Modules</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">How Go modules work — go.mod, versioning, dependencies, workspaces, and private modules.</p>
             <div class="tc-tags">
@@ -499,7 +468,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">Performance</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Stack vs heap, escape analysis, pprof profiling, goroutine leaks, and writing efficient Go.</p>
             <div class="tc-tags">
@@ -524,7 +492,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">time</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Dates, durations, formatting, parsing, timezones, timers and tickers.</p>
             <div class="tc-tags">
@@ -538,7 +505,6 @@
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">strings</span>
-              <span class="tc-badge ready">Ready</span>
             </div>
             <p class="tc-desc">Searching, splitting, replacing, trimming, building and comparing strings.</p>
             <div class="tc-tags">
@@ -547,12 +513,11 @@
           </div>
         </a>
 
-        <a href="fmt-package-guide.html" class="topic-card soon">
+        <a href="fmt-package-guide.html" class="topic-card">
           <div class="tc-icon">🖨</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">fmt</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Printf, Sprintf, Fprintf, format verbs, Stringer interface and Errorf.</p>
             <div class="tc-tags">
@@ -561,12 +526,11 @@
           </div>
         </a>
 
-        <a href="errors-package-guide.html" class="topic-card soon">
+        <a href="errors-package-guide.html" class="topic-card">
           <div class="tc-icon">⚠️</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">errors</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">errors.New, error wrapping with %w, errors.Is, errors.As and custom error types.</p>
             <div class="tc-tags">
@@ -575,12 +539,11 @@
           </div>
         </a>
 
-        <a href="sort-package-guide.html" class="topic-card soon">
+        <a href="sort-package-guide.html" class="topic-card">
           <div class="tc-icon">📊</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">sort</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Sorting slices, custom comparators, stable sort, and binary search.</p>
             <div class="tc-tags">
@@ -589,12 +552,11 @@
           </div>
         </a>
 
-        <a href="math-package-guide.html" class="topic-card soon">
+        <a href="math-package-guide.html" class="topic-card">
           <div class="tc-icon">🧮</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">math</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Common math functions, constants, rounding, random numbers and math/rand.</p>
             <div class="tc-tags">
@@ -603,12 +565,11 @@
           </div>
         </a>
 
-        <a href="os-package-guide.html" class="topic-card soon">
+        <a href="os-package-guide.html" class="topic-card">
           <div class="tc-icon">💻</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">os</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Environment variables, file operations, process control, signals and exec.</p>
             <div class="tc-tags">
@@ -617,12 +578,11 @@
           </div>
         </a>
 
-        <a href="strconv-package-guide.html" class="topic-card soon">
+        <a href="strconv-package-guide.html" class="topic-card">
           <div class="tc-icon">🔢</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">strconv</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Converting between strings and numeric types — Atoi, Itoa, ParseInt, ParseFloat and more.</p>
             <div class="tc-tags">
@@ -631,12 +591,11 @@
           </div>
         </a>
 
-        <a href="context-package-guide.html" class="topic-card soon">
+        <a href="context-package-guide.html" class="topic-card">
           <div class="tc-icon">🎯</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">context</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Propagate deadlines, cancellation signals, and request-scoped values across API boundaries.</p>
             <div class="tc-tags">
@@ -645,12 +604,11 @@
           </div>
         </a>
 
-        <a href="io-package-guide.html" class="topic-card soon">
+        <a href="io-package-guide.html" class="topic-card">
           <div class="tc-icon">🔌</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">io</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Foundational Reader and Writer interfaces — the primitives everything else in Go I/O builds on.</p>
             <div class="tc-tags">
@@ -659,12 +617,11 @@
           </div>
         </a>
 
-        <a href="slices-package-guide.html" class="topic-card soon">
+        <a href="slices-package-guide.html" class="topic-card">
           <div class="tc-icon">🗂</div>
           <div class="tc-body">
             <div class="tc-header">
               <span class="tc-title">slices</span>
-              <span class="tc-badge soon">Soon</span>
             </div>
             <p class="tc-desc">Generic slice utilities added in Go 1.21 — sort, search, filter and transform slices cleanly.</p>
             <div class="tc-tags">
