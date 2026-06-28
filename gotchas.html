@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go Gotchas — Interview Handbook</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f8fa;
+      --surface:   #ffffff;
+      --surface2:  #f0f2f5;
+      --border:    #d0d7de;
+      --accent:    #0a8060;
+      --accent2:   #0969da;
+      --accent3:   #9a6700;
+      --accent4:   #cf222e;
+      --text:      #1f2328;
+      --muted:     #656d76;
+      --tag-bg:    #dafbe1;
+      --tag-text:  #1a7f37;
+
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf2ff 0%, #e6f6f1 50%, #f0f8ff 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 60%, rgba(10,128,96,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 40%, rgba(9,105,218,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid #82cfaa;
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent4); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .hero-pills span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      padding: 5px 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    .pkg-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 32px 0 32px 24px;
+    }
+
+    .pkg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pkg-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .pkg-list a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .pkg-list a.active {
+      color: var(--accent2);
+      background: rgba(9,105,218,.07);
+      border-color: rgba(9,105,218,.2);
+      font-weight: 600;
+    }
+
+    .pkg-list a .pkg-icon { font-size: .85rem; width: 18px; text-align: center; }
+
+    .home-link {
+      display: block;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      padding: 4px 10px 18px;
+      letter-spacing: -.01em;
+      text-decoration: none;
+    }
+
+    .home-link:hover { color: var(--accent2); text-decoration: none; }
+
+    .nav-group {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .toc-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 32px 24px 32px 0;
+    }
+
+    .toc-title {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc a {
+      display: block;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-right: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-right-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content {
+      padding: 40px 32px;
+      min-width: 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .section {
+      margin-bottom: 60px;
+      scroll-margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(9,105,218,.1);   color: var(--accent2); }
+    .icon-green  { background: rgba(10,128,96,.1);   color: var(--accent);  }
+    .icon-gold   { background: rgba(154,103,0,.1);   color: var(--accent3); }
+    .icon-red    { background: rgba(207,34,46,.1);   color: var(--accent4); }
+    .icon-purple { background: rgba(130,80,223,.1);  color: #5a32a3;        }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section-header .section-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+
+    .card:hover { border-color: #adbac7; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+
+    .badge-blue   { background: rgba(9,105,218,.08);  color: var(--accent2); border: 1px solid rgba(9,105,218,.2);   }
+    .badge-green  { background: rgba(10,128,96,.08);  color: var(--accent);  border: 1px solid rgba(10,128,96,.2);   }
+    .badge-gold   { background: rgba(154,103,0,.08);  color: var(--accent3); border: 1px solid rgba(154,103,0,.2);   }
+    .badge-red    { background: rgba(207,34,46,.08);  color: var(--accent4); border: 1px solid rgba(207,34,46,.2);   }
+    .badge-purple { background: rgba(130,80,223,.08); color: #5a32a3;        border: 1px solid rgba(130,80,223,.2);  }
+
+    .code-wrap {
+      position: relative;
+      padding: 20px 20px 18px;
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .kw  { color: #cf222e; }
+    .fn  { color: #8250df; }
+    .str { color: #0a3069; }
+    .cmt { color: #6e7781; font-style: italic; }
+    .num { color: #0550ae; }
+    .pkg { color: #0969da; }
+    .typ { color: #953800; }
+    .out { color: #1a7f37; }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #ddf4ff;
+      border: 1px solid #54aeff80;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: .86rem;
+      color: #1f2328;
+    }
+
+    .callout.warn {
+      background: #fff8c5;
+      border-color: #d4a72c80;
+    }
+
+    .callout.tip {
+      background: #dafbe1;
+      border-color: #4ac26b80;
+    }
+
+    .callout.danger {
+      background: #ffebe9;
+      border-color: #ff818266;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .83rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ref-table thead th {
+      background: var(--surface2);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ref-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ref-table tbody tr:last-child { border-bottom: none; }
+    .ref-table tbody tr:hover { background: var(--surface2); }
+
+    .ref-table td { padding: 9px 14px; vertical-align: top; }
+
+    .ref-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent4);
+      white-space: nowrap;
+    }
+
+    .ref-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent2);
+    }
+
+    .ref-table td:last-child { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pkg-nav, .toc-nav { display: none; }
+      .content { padding: 24px 16px; border: none; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Language</div>
+  <h1>Go <span>Gotchas</span></h1>
+  <p>Tricky corners of Go that trip up experienced developers. Each one includes the wrong behavior, why it happens, and the fix.</p>
+  <div class="hero-pills">
+    <span>Slices</span>
+    <span>Maps</span>
+    <span>nil interfaces</span>
+    <span>Closures</span>
+    <span>Goroutines</span>
+    <span>Integers</span>
+    <span>Defer</span>
+    <span>Strings</span>
+  </div>
+</div>
+
+<div class="layout">
+
+  <nav class="pkg-nav">
+    <a href="index.html" class="home-link">Go Handbook</a>
+    <div class="nav-group">Language</div>
+    <ul class="pkg-list">
+      <li><a href="basics.html"><span class="pkg-icon">📖</span>Basics</a></li>
+      <li><a href="data-structures.html"><span class="pkg-icon">📦</span>Data Structures</a></li>
+      <li><a href="concurrency.html"><span class="pkg-icon">🔀</span>Concurrency</a></li>
+      <li><a href="testing.html"><span class="pkg-icon">🧪</span>Testing</a></li>
+      <li><a href="reflection.html"><span class="pkg-icon">🔬</span>Reflection</a></li>
+      <li><a href="file-data.html"><span class="pkg-icon">📁</span>File &amp; Data</a></li>
+      <li><a href="web.html"><span class="pkg-icon">🌐</span>Web</a></li>
+      <li><a href="packages-modules.html"><span class="pkg-icon">🗃</span>Packages &amp; Modules</a></li>
+      <li><a href="performance.html"><span class="pkg-icon">⚡</span>Performance</a></li>
+      <li><a href="gotchas.html" class="active"><span class="pkg-icon">⚠️</span>Gotchas</a></li>
+    </ul>
+    <div class="nav-group">Packages</div>
+    <ul class="pkg-list">
+      <li><a href="strings-package-guide.html"><span class="pkg-icon">🔤</span>strings</a></li>
+      <li><a href="fmt-package-guide.html"><span class="pkg-icon">🖨</span>fmt</a></li>
+      <li><a href="strconv-package-guide.html"><span class="pkg-icon">🔢</span>strconv</a></li>
+      <li><a href="sort-package-guide.html"><span class="pkg-icon">📊</span>sort</a></li>
+      <li><a href="slices-package-guide.html"><span class="pkg-icon">🗂</span>slices</a></li>
+      <li><a href="io-package-guide.html"><span class="pkg-icon">🔌</span>io</a></li>
+      <li><a href="os-package-guide.html"><span class="pkg-icon">💻</span>os</a></li>
+      <li><a href="errors-package-guide.html"><span class="pkg-icon">⚠️</span>errors</a></li>
+      <li><a href="context-package-guide.html"><span class="pkg-icon">🎯</span>context</a></li>
+      <li><a href="time-package-guide.html"><span class="pkg-icon">⏱</span>time</a></li>
+      <li><a href="math-package-guide.html"><span class="pkg-icon">🧮</span>math</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+
+    <!-- ── 1. SLICES ───────────────────────────────────────────────── -->
+    <section class="section" id="slices">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔪</div>
+        <h2>Slice Gotchas</h2>
+        <span class="section-tag">append · backing array · range copy</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>A slice is a three-field struct: a pointer to an array, a length, and a capacity. Multiple slices can point at the same underlying array. That sharing is what makes most slice gotchas surprising.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Sub-slice shares the backing array</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre>original := []<span class="typ">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>}
+sub := original[<span class="num">1</span>:<span class="num">3</span>]  <span class="cmt">// [2 3] — shares the same backing array</span>
+
+sub[<span class="num">0</span>] = <span class="num">99</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(original) <span class="cmt">// [1 99 3 4 5] — original is modified!</span>
+
+<span class="cmt">// append to sub overwrites original[3] if there is capacity</span>
+sub = <span class="fn">append</span>(sub, <span class="num">100</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(original) <span class="cmt">// [1 99 3 100 5] — surprise!</span>
+
+<span class="cmt">// Fix: use the three-index slice expression to cap the capacity</span>
+sub = original[<span class="num">1</span>:<span class="num">3</span>:<span class="num">3</span>]  <span class="cmt">// cap is now 2, append forces a new allocation</span>
+sub = <span class="fn">append</span>(sub, <span class="num">100</span>)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(original)  <span class="cmt">// [1 99 3 4 5] — original is safe</span>
+
+<span class="cmt">// Or copy explicitly to detach from the original</span>
+safe := <span class="fn">make</span>([]<span class="typ">int</span>, <span class="fn">len</span>(sub))
+<span class="fn">copy</span>(safe, sub)</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">nil slice vs empty slice</span>
+          <span class="card-badge badge-blue">nil vs empty</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">var</span> nilSlice []<span class="typ">int</span>      <span class="cmt">// nil — pointer is nil</span>
+emptySlice := []<span class="typ">int</span>{}   <span class="cmt">// not nil — pointer is non-nil but len is 0</span>
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(nilSlice == <span class="kw">nil</span>)   <span class="cmt">// true</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(emptySlice == <span class="kw">nil</span>) <span class="cmt">// false</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">len</span>(nilSlice))     <span class="cmt">// 0 — both have length 0</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">len</span>(emptySlice))   <span class="cmt">// 0</span>
+
+<span class="cmt">// Both work fine for range and append</span>
+nilSlice = <span class="fn">append</span>(nilSlice, <span class="num">1</span>)  <span class="cmt">// safe</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> nilSlice { _ = v } <span class="cmt">// safe</span>
+
+<span class="cmt">// JSON: nil marshals to null, empty marshals to []</span>
+<span class="pkg">json</span>.<span class="fn">Marshal</span>(nilSlice)   <span class="cmt">// null</span>
+<span class="pkg">json</span>.<span class="fn">Marshal</span>(emptySlice) <span class="cmt">// []</span>
+
+<span class="cmt">// This distinction matters when the API consumer checks for null</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Range gives a copy — mutations are lost</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Point</span> <span class="kw">struct</span>{ X, Y <span class="typ">int</span> }
+
+points := []<span class="typ">Point</span>{{<span class="num">1</span>, <span class="num">2</span>}, {<span class="num">3</span>, <span class="num">4</span>}}
+
+<span class="cmt">// p is a copy — modifying it has no effect on the slice</span>
+<span class="kw">for</span> _, p := <span class="kw">range</span> points {
+    p.X = <span class="num">99</span>
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(points) <span class="cmt">// [{1 2} {3 4}] — unchanged</span>
+
+<span class="cmt">// Fix: use the index to modify in place</span>
+<span class="kw">for</span> i := <span class="kw">range</span> points {
+    points[i].X = <span class="num">99</span>
+}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(points) <span class="cmt">// [{99 2} {99 4}]</span>
+
+<span class="cmt">// Or use a slice of pointers if you pass elements around</span>
+ppoints := []*<span class="typ">Point</span>{{<span class="num">1</span>, <span class="num">2</span>}, {<span class="num">3</span>, <span class="num">4</span>}}
+<span class="kw">for</span> _, p := <span class="kw">range</span> ppoints {
+    p.X = <span class="num">99</span>  <span class="cmt">// p is a pointer copy — but it still points to the original</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2. MAPS ──────────────────────────────────────────────────── -->
+    <section class="section" id="maps">
+      <div class="section-header">
+        <div class="section-icon icon-gold">🗺</div>
+        <h2>Map Gotchas</h2>
+        <span class="section-tag">nil · iteration order · concurrency</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Writing to a nil map panics</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">var</span> m <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>  <span class="cmt">// nil map</span>
+
+<span class="cmt">// Reading is safe — returns the zero value</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(m[<span class="str">"key"</span>])       <span class="cmt">// 0</span>
+v, ok := m[<span class="str">"key"</span>]           <span class="cmt">// v=0, ok=false</span>
+
+<span class="cmt">// Writing panics</span>
+m[<span class="str">"key"</span>] = <span class="num">1</span>  <span class="cmt">// panic: assignment to entry in nil map</span>
+
+<span class="cmt">// Always initialize before writing</span>
+m = <span class="fn">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>)
+m[<span class="str">"key"</span>] = <span class="num">1</span>  <span class="cmt">// safe</span>
+
+<span class="cmt">// Or initialize with a literal</span>
+m = <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{<span class="str">"key"</span>: <span class="num">1</span>}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Iteration order is not guaranteed</span>
+          <span class="card-badge badge-gold">Non-deterministic</span>
+        </div>
+        <div class="code-wrap">
+<pre>m := <span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>{<span class="str">"a"</span>: <span class="num">1</span>, <span class="str">"b"</span>: <span class="num">2</span>, <span class="str">"c"</span>: <span class="num">3</span>}
+
+<span class="cmt">// Go deliberately randomizes map iteration order</span>
+<span class="cmt">// This output changes on every run</span>
+<span class="kw">for</span> k, v := <span class="kw">range</span> m {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(k, v)  <span class="cmt">// could be b,a,c or c,b,a — unpredictable</span>
+}
+
+<span class="cmt">// Fix: collect keys, sort them, then iterate</span>
+keys := <span class="fn">make</span>([]<span class="typ">string</span>, <span class="num">0</span>, <span class="fn">len</span>(m))
+<span class="kw">for</span> k := <span class="kw">range</span> m {
+    keys = <span class="fn">append</span>(keys, k)
+}
+<span class="pkg">sort</span>.<span class="fn">Strings</span>(keys)
+<span class="kw">for</span> _, k := <span class="kw">range</span> keys {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(k, m[k])  <span class="cmt">// a 1, b 2, c 3 — deterministic</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Concurrent map access causes a runtime panic</span>
+          <span class="card-badge badge-red">Race condition</span>
+        </div>
+        <div class="code-wrap">
+<pre>m := <span class="fn">make</span>(<span class="kw">map</span>[<span class="typ">string</span>]<span class="typ">int</span>)
+
+<span class="cmt">// Concurrent writes — fatal error at runtime</span>
+<span class="kw">go</span> <span class="kw">func</span>() { m[<span class="str">"a"</span>] = <span class="num">1</span> }()
+<span class="kw">go</span> <span class="kw">func</span>() { m[<span class="str">"b"</span>] = <span class="num">2</span> }()
+<span class="cmt">// fatal error: concurrent map writes</span>
+
+<span class="cmt">// Fix 1: protect with a mutex</span>
+<span class="kw">var</span> mu <span class="pkg">sync</span>.<span class="typ">RWMutex</span>
+<span class="kw">go</span> <span class="kw">func</span>() {
+    mu.<span class="fn">Lock</span>()
+    m[<span class="str">"a"</span>] = <span class="num">1</span>
+    mu.<span class="fn">Unlock</span>()
+}()
+
+<span class="cmt">// Fix 2: use sync.Map for high-contention scenarios</span>
+<span class="kw">var</span> sm <span class="pkg">sync</span>.<span class="typ">Map</span>
+sm.<span class="fn">Store</span>(<span class="str">"a"</span>, <span class="num">1</span>)
+v, _ := sm.<span class="fn">Load</span>(<span class="str">"a"</span>)</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. INTERFACES & NIL ──────────────────────────────────────── -->
+    <section class="section" id="interfaces-nil">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔌</div>
+        <h2>Interface &amp; nil</h2>
+        <span class="section-tag">typed nil · type assertion · comparison</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">ℹ️</span>
+        <div>An interface value holds two fields internally: a <strong>type</strong> and a <strong>value</strong>. An interface is nil only when <em>both</em> fields are nil. A typed nil pointer stored in an interface has a non-nil type field, so the interface itself is not nil.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Typed nil in an interface is not nil</span>
+          <span class="card-badge badge-red">Classic trap</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">MyError</span> <span class="kw">struct</span>{ msg <span class="typ">string</span> }
+<span class="kw">func</span> (e *<span class="typ">MyError</span>) <span class="fn">Error</span>() <span class="typ">string</span> { <span class="kw">return</span> e.msg }
+
+<span class="kw">func</span> <span class="fn">getError</span>() <span class="typ">error</span> {
+    <span class="kw">var</span> e *<span class="typ">MyError</span>  <span class="cmt">// typed nil pointer</span>
+    <span class="kw">return</span> e         <span class="cmt">// wraps (*MyError, nil) in an error interface</span>
+}
+
+err := <span class="fn">getError</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(err == <span class="kw">nil</span>)  <span class="cmt">// false — surprise! type part is *MyError</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(err)           <span class="cmt">// &lt;nil&gt; — value part prints as nil</span>
+
+<span class="cmt">// Fix: return an untyped nil</span>
+<span class="kw">func</span> <span class="fn">getError</span>() <span class="typ">error</span> {
+    <span class="kw">var</span> e *<span class="typ">MyError</span>
+    <span class="kw">if</span> e == <span class="kw">nil</span> {
+        <span class="kw">return</span> <span class="kw">nil</span>  <span class="cmt">// returns (nil, nil) — the interface is truly nil</span>
+    }
+    <span class="kw">return</span> e
+}
+err = <span class="fn">getError</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(err == <span class="kw">nil</span>)  <span class="cmt">// true</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Type assertion without comma-ok panics</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">var</span> i <span class="kw">interface</span>{} = <span class="str">"hello"</span>
+
+<span class="cmt">// Single-value assertion panics when the type is wrong</span>
+n := i.(<span class="typ">int</span>)  <span class="cmt">// panic: interface {} is string, not int</span>
+
+<span class="cmt">// Safe form: comma-ok never panics</span>
+n, ok := i.(<span class="typ">int</span>)
+<span class="kw">if</span> !ok {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"not an int"</span>)  <span class="cmt">// prints this</span>
+}
+
+<span class="cmt">// Type switch is another safe alternative — handles multiple types</span>
+<span class="kw">switch</span> v := i.(<span class="kw">type</span>) {
+<span class="kw">case</span> <span class="typ">int</span>:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"int:"</span>, v)
+<span class="kw">case</span> <span class="typ">string</span>:
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"string:"</span>, v)  <span class="cmt">// string: hello</span>
+<span class="kw">default</span>:
+    <span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"unknown: %T\n"</span>, v)
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. CLOSURES & LOOPS ──────────────────────────────────────── -->
+    <section class="section" id="closures-loops">
+      <div class="section-header">
+        <div class="section-icon icon-red">🔄</div>
+        <h2>Closures &amp; Loops</h2>
+        <span class="section-tag">variable capture · goroutine loops · Go 1.22</span>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div>Go 1.22 changed loop variable semantics so each iteration gets its own copy. If you are on Go 1.21 or earlier the captures below are real bugs. Even on 1.22+ the goroutine timing issue still bites you in <code>for range</code> over channels.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All closures capture the same loop variable (pre 1.22)</span>
+          <span class="card-badge badge-red">Classic trap</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// All three functions share a reference to the same i</span>
+funcs := <span class="fn">make</span>([]<span class="kw">func</span>(), <span class="num">3</span>)
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">3</span>; i++ {
+    funcs[i] = <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(i) }
+}
+funcs[<span class="num">0</span>]() <span class="cmt">// 3 — not 0, i is 3 when funcs run</span>
+funcs[<span class="num">1</span>]() <span class="cmt">// 3</span>
+funcs[<span class="num">2</span>]() <span class="cmt">// 3</span>
+
+<span class="cmt">// Fix: shadow the variable inside the loop body</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">3</span>; i++ {
+    i := i  <span class="cmt">// new variable per iteration</span>
+    funcs[i] = <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(i) }
+}
+funcs[<span class="num">0</span>]() <span class="cmt">// 0</span>
+funcs[<span class="num">1</span>]() <span class="cmt">// 1</span>
+funcs[<span class="num">2</span>]() <span class="cmt">// 2</span>
+
+<span class="cmt">// Alternative fix: pass i as an argument</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i < <span class="num">3</span>; i++ {
+    funcs[i] = <span class="kw">func</span>(n <span class="typ">int</span>) <span class="kw">func</span>() {
+        <span class="kw">return</span> <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(n) }
+    }(i)
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Goroutines in loops print the wrong value</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre>words := []<span class="typ">string</span>{<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>}
+
+<span class="cmt">// Goroutines start AFTER the loop finishes — v is already "c"</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> words {
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(v)  <span class="cmt">// prints "c c c" (or similar)</span>
+    }()
+}
+
+<span class="cmt">// Fix 1: pass v as an argument — evaluated at goroutine launch time</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> words {
+    <span class="kw">go</span> <span class="kw">func</span>(v <span class="typ">string</span>) {
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(v)  <span class="cmt">// prints a, b, c in some order</span>
+    }(v)
+}
+
+<span class="cmt">// Fix 2: shadow v inside the loop</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> words {
+    v := v
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(v) }()
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. GOROUTINES & CHANNELS ─────────────────────────────────── -->
+    <section class="section" id="goroutines-channels">
+      <div class="section-header">
+        <div class="section-icon icon-green">🔀</div>
+        <h2>Goroutines &amp; Channels</h2>
+        <span class="section-tag">leaks · closed channel · deadlock</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Goroutine leak — blocked with no sender</span>
+          <span class="card-badge badge-red">Memory leak</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Goroutine blocks on receive forever — it leaks</span>
+<span class="kw">func</span> <span class="fn">leak</span>() {
+    ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        val := &lt;-ch        <span class="cmt">// blocked forever, goroutine never exits</span>
+        <span class="pkg">fmt</span>.<span class="fn">Println</span>(val)
+    }()
+    <span class="cmt">// ch never receives a value — function returns, goroutine stays</span>
+}
+
+<span class="cmt">// Fix: use context to give the goroutine an exit path</span>
+<span class="kw">func</span> <span class="fn">noLeak</span>(ctx <span class="pkg">context</span>.<span class="typ">Context</span>) {
+    ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> val := &lt;-ch:
+            <span class="pkg">fmt</span>.<span class="fn">Println</span>(val)
+        <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+            <span class="kw">return</span>  <span class="cmt">// exits cleanly when context is cancelled</span>
+        }
+    }()
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Sending on a closed channel panics</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre>ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">1</span>)
+ch &lt;- <span class="num">1</span>
+<span class="fn">close</span>(ch)
+
+<span class="cmt">// Sending to a closed channel always panics</span>
+ch &lt;- <span class="num">2</span>  <span class="cmt">// panic: send on closed channel</span>
+
+<span class="cmt">// Receiving from a closed channel is safe</span>
+v, ok := &lt;-ch
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v, ok)  <span class="cmt">// 1 true  — buffered value still there</span>
+
+v, ok = &lt;-ch
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(v, ok)  <span class="cmt">// 0 false — empty and closed</span>
+
+<span class="cmt">// range over a closed channel drains it then stops</span>
+ch2 := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">3</span>)
+ch2 &lt;- <span class="num">1</span>; ch2 &lt;- <span class="num">2</span>; <span class="fn">close</span>(ch2)
+<span class="kw">for</span> v := <span class="kw">range</span> ch2 {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(v)  <span class="cmt">// 1, 2</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Deadlock — all goroutines asleep</span>
+          <span class="card-badge badge-red">Deadlock</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Sending on an unbuffered channel with no receiver blocks forever</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+ch &lt;- <span class="num">1</span>  <span class="cmt">// fatal error: all goroutines are asleep — deadlock!</span>
+
+<span class="cmt">// Fix 1: use a goroutine to send</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+<span class="kw">go</span> <span class="kw">func</span>() { ch &lt;- <span class="num">1</span> }()
+v := &lt;-ch  <span class="cmt">// 1</span>
+
+<span class="cmt">// Fix 2: use a buffered channel</span>
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>, <span class="num">1</span>)
+ch &lt;- <span class="num">1</span>  <span class="cmt">// does not block</span>
+v := &lt;-ch
+
+<span class="cmt">// Mutual deadlock — two goroutines waiting on each other</span>
+ch1 := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+ch2 := <span class="fn">make</span>(<span class="kw">chan</span> <span class="typ">int</span>)
+<span class="kw">go</span> <span class="kw">func</span>() { &lt;-ch1; ch2 &lt;- <span class="num">1</span> }()
+<span class="kw">go</span> <span class="kw">func</span>() { &lt;-ch2; ch1 &lt;- <span class="num">1</span> }()
+<span class="cmt">// Both goroutines wait forever</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. INTEGERS & TYPES ──────────────────────────────────────── -->
+    <section class="section" id="integers-types">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔢</div>
+        <h2>Integers &amp; Types</h2>
+        <span class="section-tag">overflow · division · no implicit conversion</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Integer overflow wraps silently</span>
+          <span class="card-badge badge-red">Silent bug</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// Go does not panic on overflow — it wraps around</span>
+<span class="kw">var</span> x <span class="typ">uint8</span> = <span class="num">255</span>
+x++
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(x)  <span class="cmt">// 0</span>
+
+<span class="kw">var</span> y <span class="typ">int8</span> = <span class="num">127</span>
+y++
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(y)  <span class="cmt">// -128</span>
+
+<span class="cmt">// Use math constants to guard against overflow</span>
+<span class="kw">import</span> <span class="str">"math"</span>
+<span class="kw">if</span> x > <span class="pkg">math</span>.<span class="typ">MaxUint8</span>-<span class="num">1</span> {
+    <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"would overflow"</span>)
+}
+
+<span class="cmt">// The race detector and go vet do NOT catch overflow</span>
+<span class="cmt">// Consider using big.Int for arbitrary precision math</span></pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Integer division truncates</span>
+            <span class="card-badge badge-gold">Truncation</span>
+          </div>
+          <div class="code-wrap">
+<pre>a := <span class="num">7</span> / <span class="num">2</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(a)  <span class="cmt">// 3, not 3.5</span>
+
+b := -<span class="num">7</span> / <span class="num">2</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(b)  <span class="cmt">// -3 (toward zero)</span>
+
+<span class="cmt">// Fix: convert to float64 first</span>
+c := <span class="typ">float64</span>(<span class="num">7</span>) / <span class="num">2</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(c)  <span class="cmt">// 3.5</span>
+
+<span class="cmt">// Modulo follows the sign of the dividend</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(-<span class="num">7</span> % <span class="num">3</span>)  <span class="cmt">// -1, not 2</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">No implicit type conversion</span>
+            <span class="card-badge badge-blue">Compile error</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="kw">var</span> a <span class="typ">int</span> = <span class="num">10</span>
+<span class="kw">var</span> b <span class="typ">int64</span> = <span class="num">20</span>
+
+<span class="cmt">// Does not compile</span>
+_ = a + b  <span class="cmt">// mismatched types int and int64</span>
+
+<span class="cmt">// Must convert explicitly</span>
+_ = <span class="typ">int64</span>(a) + b  <span class="cmt">// 30</span>
+
+<span class="kw">var</span> f <span class="typ">float64</span> = <span class="num">3</span>.<span class="num">9</span>
+n := <span class="typ">int</span>(f)   <span class="cmt">// 3 — truncates, no rounding</span>
+
+<span class="cmt">// byte is uint8 — common in string manipulation</span>
+<span class="kw">var</span> c <span class="typ">byte</span> = <span class="str">'A'</span>  <span class="cmt">// 65</span>
+_ = c + <span class="num">1</span>        <span class="cmt">// 66 — byte arithmetic wraps at 255</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. DEFER ─────────────────────────────────────────────────── -->
+    <section class="section" id="defer">
+      <div class="section-header">
+        <div class="section-icon icon-gold">⏳</div>
+        <h2>Defer Gotchas</h2>
+        <span class="section-tag">loop defer · args evaluated · named returns</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Defer in a loop does not run per iteration</span>
+          <span class="card-badge badge-red">Resource leak</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="cmt">// All defers pile up and run when the FUNCTION exits, not each iteration</span>
+<span class="kw">func</span> <span class="fn">processFiles</span>(paths []<span class="typ">string</span>) {
+    <span class="kw">for</span> _, p := <span class="kw">range</span> paths {
+        f, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(p)
+        <span class="kw">defer</span> f.<span class="fn">Close</span>()  <span class="cmt">// all 100 files stay open until processFiles returns</span>
+    }
+}
+
+<span class="cmt">// Fix: wrap the body in an immediately-invoked function</span>
+<span class="kw">func</span> <span class="fn">processFiles</span>(paths []<span class="typ">string</span>) {
+    <span class="kw">for</span> _, p := <span class="kw">range</span> paths {
+        <span class="kw">func</span>() {
+            f, _ := <span class="pkg">os</span>.<span class="fn">Open</span>(p)
+            <span class="kw">defer</span> f.<span class="fn">Close</span>()  <span class="cmt">// closes at the end of each iteration</span>
+            <span class="cmt">// ... process file ...</span>
+        }()
+    }
+}</pre>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Arguments evaluated at defer time</span>
+            <span class="card-badge badge-gold">Evaluated now</span>
+          </div>
+          <div class="code-wrap">
+<pre>x := <span class="num">1</span>
+<span class="kw">defer</span> <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"deferred:"</span>, x) <span class="cmt">// x=1 captured now</span>
+x = <span class="num">2</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"current:"</span>, x)        <span class="cmt">// 2</span>
+<span class="cmt">// Output:</span>
+<span class="cmt">// current: 2</span>
+<span class="cmt">// deferred: 1</span>
+
+<span class="cmt">// Use a closure to read x at call time instead</span>
+x = <span class="num">1</span>
+<span class="kw">defer</span> <span class="kw">func</span>() { <span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="str">"deferred:"</span>, x) }()
+x = <span class="num">2</span>
+<span class="cmt">// Output:</span>
+<span class="cmt">// deferred: 2</span></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Defer can change named return values</span>
+            <span class="card-badge badge-gold">Side effect</span>
+          </div>
+          <div class="code-wrap">
+<pre><span class="cmt">// Deferred closure can read and modify named returns</span>
+<span class="kw">func</span> <span class="fn">withBonus</span>(price <span class="typ">float64</span>) (result <span class="typ">float64</span>) {
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        result *= <span class="num">1</span>.<span class="num">1</span>  <span class="cmt">// runs after return, adds 10%</span>
+    }()
+    result = price
+    <span class="kw">return</span>  <span class="cmt">// returns price * 1.1</span>
+}
+
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">withBonus</span>(<span class="num">100</span>))  <span class="cmt">// 110, not 100</span>
+
+<span class="cmt">// This is how recover() can set an error on return</span>
+<span class="kw">func</span> <span class="fn">safe</span>() (err <span class="typ">error</span>) {
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        <span class="kw">if</span> r := <span class="fn">recover</span>(); r != <span class="kw">nil</span> {
+            err = <span class="pkg">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"panic: %v"</span>, r)
+        }
+    }()
+    <span class="fn">panic</span>(<span class="str">"boom"</span>)
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 8. STRINGS ───────────────────────────────────────────────── -->
+    <section class="section" id="strings">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔤</div>
+        <h2>String Gotchas</h2>
+        <span class="section-tag">bytes vs runes · concatenation · immutability</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Indexing gives bytes, not characters</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre>s := <span class="str">"Hello, 世界"</span>
+
+<span class="cmt">// s[i] returns a byte (uint8) — not a rune</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(s[<span class="num">7</span>])            <span class="cmt">// 228 — first byte of '世', not '世'</span>
+<span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%T\n"</span>, s[<span class="num">7</span>])      <span class="cmt">// uint8</span>
+
+<span class="cmt">// len() counts bytes, not characters</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">len</span>(s))           <span class="cmt">// 13, not 9</span>
+
+<span class="cmt">// range over a string decodes UTF-8 and yields runes</span>
+<span class="kw">for</span> i, r := <span class="kw">range</span> s {
+    <span class="pkg">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%d: %c\n"</span>, i, r) <span class="cmt">// 7: 世  (byte index 7)</span>
+}
+
+<span class="cmt">// Fix: convert to []rune for character-index access</span>
+runes := []<span class="typ">rune</span>(s)
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="fn">len</span>(runes))       <span class="cmt">// 9</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="typ">string</span>(runes[<span class="num">7</span>])) <span class="cmt">// 世</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">String concatenation in a loop is O(n²)</span>
+          <span class="card-badge badge-red">Performance trap</span>
+        </div>
+        <div class="code-wrap">
+<pre>parts := []<span class="typ">string</span>{<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>, <span class="str">"d"</span>}
+
+<span class="cmt">// Slow: each += allocates a new string and copies all previous bytes</span>
+result := <span class="str">""</span>
+<span class="kw">for</span> _, s := <span class="kw">range</span> parts {
+    result += s  <span class="cmt">// O(n²) total — don't do this for large inputs</span>
+}
+
+<span class="cmt">// Fast: strings.Builder — single growing buffer</span>
+<span class="kw">var</span> b <span class="pkg">strings</span>.<span class="typ">Builder</span>
+<span class="kw">for</span> _, s := <span class="kw">range</span> parts {
+    b.<span class="fn">WriteString</span>(s)
+}
+result = b.<span class="fn">String</span>()  <span class="cmt">// one final allocation</span>
+
+<span class="cmt">// Cleanest when joining a known slice</span>
+result = <span class="pkg">strings</span>.<span class="fn">Join</span>(parts, <span class="str">""</span>)  <span class="cmt">// abcd</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Converting between string and []byte copies</span>
+          <span class="card-badge badge-blue">Hidden allocation</span>
+        </div>
+        <div class="code-wrap">
+<pre>s := <span class="str">"hello"</span>
+
+<span class="cmt">// string → []byte makes a copy — mutations don't affect s</span>
+b := []<span class="typ">byte</span>(s)
+b[<span class="num">0</span>] = <span class="str">'H'</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(s)          <span class="cmt">// "hello" — unchanged</span>
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(<span class="typ">string</span>(b))  <span class="cmt">// "Hello"</span>
+
+<span class="cmt">// Each conversion allocates, so avoid in hot paths</span>
+<span class="cmt">// Use strings.Builder or []byte throughout instead</span>
+
+<span class="cmt">// strings.Contains, strings.HasPrefix etc. accept string — no conversion needed</span>
+<span class="pkg">strings</span>.<span class="fn">Contains</span>(s, <span class="str">"ell"</span>)  <span class="cmt">// true — no []byte needed</span>
+
+<span class="cmt">// bytes package has the same functions for []byte</span>
+<span class="pkg">bytes</span>.<span class="fn">Contains</span>(b, []<span class="typ">byte</span>(<span class="str">"ell"</span>))  <span class="cmt">// true</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. STRUCT & METHOD GOTCHAS ───────────────────────────────── -->
+    <section class="section" id="structs-methods">
+      <div class="section-header">
+        <div class="section-icon icon-green">🏗</div>
+        <h2>Struct &amp; Method Gotchas</h2>
+        <span class="section-tag">value vs pointer receiver · method set · embedding</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Value receiver does not modify the original</span>
+          <span class="card-badge badge-red">Gotcha</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Counter</span> <span class="kw">struct</span>{ n <span class="typ">int</span> }
+
+<span class="cmt">// Value receiver — operates on a copy</span>
+<span class="kw">func</span> (c <span class="typ">Counter</span>) <span class="fn">Increment</span>() {
+    c.n++  <span class="cmt">// modifies the copy, not the original</span>
+}
+
+<span class="kw">func</span> (c *<span class="typ">Counter</span>) <span class="fn">IncrementPtr</span>() {
+    c.n++  <span class="cmt">// modifies the original via pointer</span>
+}
+
+c := <span class="typ">Counter</span>{}
+c.<span class="fn">Increment</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(c.n)  <span class="cmt">// 0 — unchanged</span>
+
+c.<span class="fn">IncrementPtr</span>()
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(c.n)  <span class="cmt">// 1 — modified</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Interface satisfaction depends on receiver type</span>
+          <span class="card-badge badge-red">Compile error</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Stringer</span> <span class="kw">interface</span> {
+    <span class="fn">String</span>() <span class="typ">string</span>
+}
+
+<span class="kw">type</span> <span class="typ">Name</span> <span class="kw">struct</span>{ val <span class="typ">string</span> }
+
+<span class="kw">func</span> (n *<span class="typ">Name</span>) <span class="fn">String</span>() <span class="typ">string</span> { <span class="kw">return</span> n.val }  <span class="cmt">// pointer receiver</span>
+
+<span class="kw">var</span> s <span class="typ">Stringer</span> = <span class="typ">Name</span>{<span class="str">"go"</span>}   <span class="cmt">// compile error: Name does not implement Stringer</span>
+<span class="kw">var</span> s <span class="typ">Stringer</span> = &<span class="typ">Name</span>{<span class="str">"go"</span>}  <span class="cmt">// ok: *Name implements Stringer</span>
+
+<span class="cmt">// Rule: pointer methods are in the method set of *T, not T</span>
+<span class="cmt">// Value methods are in the method set of both T and *T</span>
+
+<span class="cmt">// Fix: use a pointer when your method needs to mutate, OR</span>
+<span class="cmt">// change the method to a value receiver if no mutation needed</span>
+<span class="kw">func</span> (n <span class="typ">Name</span>) <span class="fn">String</span>() <span class="typ">string</span> { <span class="kw">return</span> n.val }
+<span class="kw">var</span> s <span class="typ">Stringer</span> = <span class="typ">Name</span>{<span class="str">"go"</span>}  <span class="cmt">// now both Name and *Name satisfy the interface</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Struct comparison requires all fields to be comparable</span>
+          <span class="card-badge badge-blue">Compile error</span>
+        </div>
+        <div class="code-wrap">
+<pre><span class="kw">type</span> <span class="typ">Good</span> <span class="kw">struct</span>{ X, Y <span class="typ">int</span> }
+<span class="kw">type</span> <span class="typ">Bad</span>  <span class="kw">struct</span>{ Data []<span class="typ">int</span> }  <span class="cmt">// slices are not comparable</span>
+
+a, b := <span class="typ">Good</span>{<span class="num">1</span>, <span class="num">2</span>}, <span class="typ">Good</span>{<span class="num">1</span>, <span class="num">2</span>}
+<span class="pkg">fmt</span>.<span class="fn">Println</span>(a == b)  <span class="cmt">// true</span>
+
+c, d := <span class="typ">Bad</span>{[]<span class="typ">int</span>{<span class="num">1</span>}}, <span class="typ">Bad</span>{[]<span class="typ">int</span>{<span class="num">1</span>}}
+_ = c == d  <span class="cmt">// compile error: struct containing []int cannot be compared</span>
+
+<span class="cmt">// Fix: use reflect.DeepEqual for deep comparison</span>
+<span class="pkg">reflect</span>.<span class="fn">DeepEqual</span>(c, d)  <span class="cmt">// true</span>
+
+<span class="cmt">// Maps and slices as struct fields also block use as map keys</span>
+<span class="kw">var</span> m <span class="kw">map</span>[<span class="typ">Bad</span>]<span class="typ">int</span>  <span class="cmt">// compile error: Bad contains []int</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 99. QUICK REFERENCE ──────────────────────────────────────── -->
+    <section class="section" id="reference">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📋</div>
+        <h2>Quick Reference</h2>
+        <span class="section-tag">Gotchas cheat-sheet</span>
+      </div>
+
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Gotcha</th>
+            <th>Symptom</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Sub-slice sharing</td><td>Appending to sub modifies original</td><td>Use three-index slice or copy()</td></tr>
+          <tr><td>nil vs empty slice</td><td>JSON null vs []</td><td>Init with []T{} if you need []</td></tr>
+          <tr><td>Range copy</td><td>Modifying range value is a no-op</td><td>Use index: slice[i].Field = x</td></tr>
+          <tr><td>nil map write</td><td>panic: assignment to nil map</td><td>make(map[K]V) before first write</td></tr>
+          <tr><td>Map order</td><td>Iteration differs every run</td><td>Sort keys first</td></tr>
+          <tr><td>Concurrent map</td><td>fatal: concurrent map writes</td><td>sync.Mutex or sync.Map</td></tr>
+          <tr><td>Typed nil in interface</td><td>err != nil even when pointer is nil</td><td>Return plain nil from functions</td></tr>
+          <tr><td>Type assertion</td><td>panic on wrong type</td><td>v, ok := i.(T) — comma-ok form</td></tr>
+          <tr><td>Loop variable capture</td><td>All closures print last value</td><td>i := i inside the loop (pre 1.22)</td></tr>
+          <tr><td>Goroutine loop</td><td>All goroutines see last value</td><td>Pass v as argument to the goroutine</td></tr>
+          <tr><td>Goroutine leak</td><td>Goroutine blocks forever</td><td>Use context or done channel</td></tr>
+          <tr><td>Send on closed channel</td><td>panic: send on closed channel</td><td>Only the sender should close</td></tr>
+          <tr><td>Deadlock</td><td>fatal: all goroutines asleep</td><td>Use goroutine or buffered channel</td></tr>
+          <tr><td>Integer overflow</td><td>Wraps silently, no panic</td><td>Check bounds with math.MaxTYPE</td></tr>
+          <tr><td>Integer division</td><td>7/2 == 3, not 3.5</td><td>float64(a) / float64(b)</td></tr>
+          <tr><td>Type conversion</td><td>Compile error: mismatched types</td><td>Explicit cast: int64(x)</td></tr>
+          <tr><td>Defer in loop</td><td>Files stay open until function exits</td><td>Wrap loop body in anonymous func</td></tr>
+          <tr><td>Defer arg eval</td><td>Deferred arg captures old value</td><td>Use a closure to capture by reference</td></tr>
+          <tr><td>Named return + defer</td><td>Defer silently changes the return</td><td>Be deliberate; prefer explicit returns</td></tr>
+          <tr><td>String indexing</td><td>s[i] is a byte, not a rune</td><td>[]rune(s)[i] or range for runes</td></tr>
+          <tr><td>String concat loop</td><td>O(n²) performance</td><td>strings.Builder or strings.Join</td></tr>
+          <tr><td>Value receiver</td><td>Method does not modify struct</td><td>Use pointer receiver *T</td></tr>
+          <tr><td>Pointer method set</td><td>T does not implement interface</td><td>Use &amp;T or switch to value receiver</td></tr>
+          <tr><td>Non-comparable struct</td><td>Compile error on == or map key</td><td>reflect.DeepEqual for comparison</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <nav class="toc-nav">
+    <div class="toc-title">On this page</div>
+    <ul class="toc">
+      <li><a href="#slices">1 — Slices</a></li>
+      <li><a href="#maps">2 — Maps</a></li>
+      <li><a href="#interfaces-nil">3 — Interfaces &amp; nil</a></li>
+      <li><a href="#closures-loops">4 — Closures &amp; Loops</a></li>
+      <li><a href="#goroutines-channels">5 — Goroutines &amp; Channels</a></li>
+      <li><a href="#integers-types">6 — Integers &amp; Types</a></li>
+      <li><a href="#defer">7 — Defer</a></li>
+      <li><a href="#strings">8 — Strings</a></li>
+      <li><a href="#structs-methods">9 — Structs &amp; Methods</a></li>
+      <li><a href="#reference">99 — Quick Reference</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+</body>
+</html>
