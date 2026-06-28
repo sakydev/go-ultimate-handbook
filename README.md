@@ -1,4 +1,4 @@
-# Go Ultimate Handbook
+# Go Interview Handbook
 
 A visual, example-driven reference for the Go programming language.
 
@@ -11,28 +11,28 @@ Clone the repo and open `index.html` in your browser. No build step, no dependen
 ## What's covered
 
 **Language**
-- [Basics](https://sakydev.github.io/go-ultimate-handbook/basics.html)
-- [Data Structures](https://sakydev.github.io/go-ultimate-handbook/data-structures.html)
-- [Concurrency](https://sakydev.github.io/go-ultimate-handbook/concurrency.html)
-- [Testing](https://sakydev.github.io/go-ultimate-handbook/testing.html)
-- [Reflection](https://sakydev.github.io/go-ultimate-handbook/reflection.html)
-- [File & Data](https://sakydev.github.io/go-ultimate-handbook/file-data.html)
-- [Web](https://sakydev.github.io/go-ultimate-handbook/web.html)
-- [Packages & Modules](https://sakydev.github.io/go-ultimate-handbook/packages-modules.html)
-- [Performance](https://sakydev.github.io/go-ultimate-handbook/performance.html)
+- [Basics](https://sakydev.github.io/go-interview-handbook/basics.html)
+- [Data Structures](https://sakydev.github.io/go-interview-handbook/data-structures.html)
+- [Concurrency](https://sakydev.github.io/go-interview-handbook/concurrency.html)
+- [Testing](https://sakydev.github.io/go-interview-handbook/testing.html)
+- [Reflection](https://sakydev.github.io/go-interview-handbook/reflection.html)
+- [File & Data](https://sakydev.github.io/go-interview-handbook/file-data.html)
+- [Web](https://sakydev.github.io/go-interview-handbook/web.html)
+- [Packages & Modules](https://sakydev.github.io/go-interview-handbook/packages-modules.html)
+- [Performance](https://sakydev.github.io/go-interview-handbook/performance.html)
 
 **Standard Library**
-- [time](https://sakydev.github.io/go-ultimate-handbook/time-package-guide.html)
-- [strings](https://sakydev.github.io/go-ultimate-handbook/strings-package-guide.html)
-- [fmt](https://sakydev.github.io/go-ultimate-handbook/fmt-package-guide.html)
-- [errors](https://sakydev.github.io/go-ultimate-handbook/errors-package-guide.html)
-- [sort](https://sakydev.github.io/go-ultimate-handbook/sort-package-guide.html)
-- [math](https://sakydev.github.io/go-ultimate-handbook/math-package-guide.html)
-- [os](https://sakydev.github.io/go-ultimate-handbook/os-package-guide.html)
-- [strconv](https://sakydev.github.io/go-ultimate-handbook/strconv-package-guide.html)
-- [context](https://sakydev.github.io/go-ultimate-handbook/context-package-guide.html)
-- [io](https://sakydev.github.io/go-ultimate-handbook/io-package-guide.html)
-- [slices](https://sakydev.github.io/go-ultimate-handbook/slices-package-guide.html)
+- [time](https://sakydev.github.io/go-interview-handbook/time-package-guide.html)
+- [strings](https://sakydev.github.io/go-interview-handbook/strings-package-guide.html)
+- [fmt](https://sakydev.github.io/go-interview-handbook/fmt-package-guide.html)
+- [errors](https://sakydev.github.io/go-interview-handbook/errors-package-guide.html)
+- [sort](https://sakydev.github.io/go-interview-handbook/sort-package-guide.html)
+- [math](https://sakydev.github.io/go-interview-handbook/math-package-guide.html)
+- [os](https://sakydev.github.io/go-interview-handbook/os-package-guide.html)
+- [strconv](https://sakydev.github.io/go-interview-handbook/strconv-package-guide.html)
+- [context](https://sakydev.github.io/go-interview-handbook/context-package-guide.html)
+- [io](https://sakydev.github.io/go-interview-handbook/io-package-guide.html)
+- [slices](https://sakydev.github.io/go-interview-handbook/slices-package-guide.html)
 
 ## Contributing
 
